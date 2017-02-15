@@ -11,6 +11,7 @@ val btVersion: String = {
 name := "http-verbs"
 version := btVersion
 scalaVersion := "2.11.8"
+organization := "com.cjww-dev.libs"
 
 val codeDependencies: Seq[ModuleID] = Seq(
   "ch.qos.logback" % "logback-classic" % "1.1.7",
