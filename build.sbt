@@ -13,19 +13,21 @@ version := btVersion
 scalaVersion := "2.11.8"
 organization := "com.cjww-dev.libs"
 
-val codeDependencies: Seq[ModuleID] = Seq(
+val cjwwDep: Seq[ModuleID] = Seq("com.cjww-dev.libs" % "data-security_2.11" % "0.3.0")
+
+val codeDep: Seq[ModuleID] = Seq(
   "ch.qos.logback" % "logback-classic" % "1.1.7",
-  "com.typesafe.play" % "play_2.11" % "2.5.12",
-  "com.cjww-dev.libs" % "data-security_2.11" % "0.3.0"
+  "com.typesafe.play" % "play_2.11" % "2.5.12"
 )
 
-val testDependencies: Seq[ModuleID] = Seq(
+val testDep: Seq[ModuleID] = Seq(
   "org.scalatestplus.play" % "scalatestplus-play_2.11" % "1.5.1" % Test,
   "org.mockito" % "mockito-core" % "2.2.29" % Test
 )
 
-libraryDependencies ++= codeDependencies
-libraryDependencies ++= testDependencies
+libraryDependencies ++= codeDep
+libraryDependencies ++= testDep
+libraryDependencies ++= cjwwDep
 
 resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
 

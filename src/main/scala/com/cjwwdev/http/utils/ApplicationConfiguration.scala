@@ -19,9 +19,5 @@ import com.typesafe.config.ConfigFactory
 
 trait ApplicationConfiguration {
   val config = ConfigFactory.load
-
-  val env = config.getString("cjww.environment")
-  val appName = config.getString("appName")
-
-  val APPLICATION_ID = config.getString(s"$env.application-ids.$appName")
+  val APPLICATION_ID = config.getString(s"application.id")
 }
