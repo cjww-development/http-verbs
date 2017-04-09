@@ -17,9 +17,48 @@ package com.cjwwdev.http.verbs
 
 import javax.inject.{Inject, Singleton}
 
-import play.api.libs.ws.WSClient
+import com.cjwwdev.http.utils.{HttpHeaders, ResponseUtils}
+import com.cjwwdev.security.encryption.DataSecurity
+import play.api.libs.json.Format
+import play.api.libs.ws.{WSClient, WSResponse}
+import play.api.mvc.Request
+
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
 @Singleton
-class Http @Inject()(wsClient: WSClient) extends HttpGet with HttpPost {
-  val http = wsClient
+class Http @Inject()(wsClient: WSClient) extends HttpHeaders with ResponseUtils {
+  def GET(url: String)(implicit request: Request[_]): Future[WSResponse] = {
+    wsClient.url(url).withHeaders(appIdHeader, contentTypeHeader, sessionIdHeader, contentTypeHeader).get() map {
+      resp => processHttpResponse(resp)
+    }
+  }
+
+  def POST[T](url: String, data: T)(implicit request: Request[_], format: Format[T]): Future[WSResponse] = {
+    val body = DataSecurity.encryptData[T](data).get
+    wsClient.url(url)
+      .withHeaders(appIdHeader, contentTypeHeader, sessionIdHeader, contextIdHeader)
+      .withBody(body)
+      .post(body)
+  }
+
+  def PUT[T](url: String, data: T)(implicit request: Request[_], format: Format[T]): Future[WSResponse] = {
+    val body = DataSecurity.encryptData[T](data).get
+    wsClient.url(url)
+      .withHeaders(appIdHeader, contentTypeHeader, sessionIdHeader, contextIdHeader)
+      .withBody(body)
+      .put(body)
+  }
+
+  def PATCH[T](url: String, data: T)(implicit request: Request[_], format: Format[T]): Future[WSResponse] = {
+    val body = DataSecurity.encryptData[T](data).get
+    wsClient.url(url)
+      .withHeaders(appIdHeader, contentTypeHeader, sessionIdHeader, contextIdHeader)
+      .withBody(body)
+      .patch(body)
+  }
+
+  def DELETE(url: String)(implicit request: Request[_]): Future[WSResponse] = {
+    wsClient.url(url).withHeaders(appIdHeader, contentTypeHeader, sessionIdHeader, contextIdHeader).delete()
+  }
 }
