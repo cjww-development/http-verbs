@@ -17,8 +17,8 @@
 package com.cjwwdev.http.verbs
 
 import com.cjwwdev.http.utils.{HttpHeaders, ResponseUtils}
-import play.api.libs.json.Format
 import play.api.libs.ws.{WSClient, WSResponse}
+import play.api.mvc.Request
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -26,9 +26,9 @@ import scala.concurrent.ExecutionContext.Implicits.global
 trait HttpGet extends HttpHeaders with ResponseUtils {
   val http: WSClient
 
-  def GET[T](url: String)(implicit format: Format[T]): Future[T] = {
-    http.url(url).withHeaders(appIdHeader, contentTypeHeader).get() map {
-      response => processHttpResponse[T](response)
+  def GET(url: String)(implicit request: Request[_]): Future[WSResponse] = {
+    http.url(url).withHeaders(appIdHeader, contentTypeHeader, sessionIdHeader, contentTypeHeader).get() map {
+      resp => processHttpResponse(resp)
     }
   }
 }

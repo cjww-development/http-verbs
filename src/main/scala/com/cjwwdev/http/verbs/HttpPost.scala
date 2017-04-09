@@ -20,14 +20,15 @@ import com.cjwwdev.http.utils.HttpHeaders
 import com.cjwwdev.security.encryption.DataSecurity
 import play.api.libs.json.Format
 import play.api.libs.ws.{WSClient, WSResponse}
+import play.api.mvc.Request
 
 import scala.concurrent.Future
 
 trait HttpPost extends HttpHeaders {
   val http: WSClient
 
-  def POST[T](url: String, data: T)(implicit format: Format[T]): Future[WSResponse] = {
+  def POST[T](url: String, data: T)(implicit request: Request[_], format: Format[T]): Future[WSResponse] = {
     val body = DataSecurity.encryptData[T](data).get
-    http.url(url).withHeaders(appIdHeader, contentTypeHeader).withBody(body).post(body)
+    http.url(url).withHeaders(appIdHeader, contentTypeHeader, sessionIdHeader, contextIdHeader).withBody(body).post(body)
   }
 }

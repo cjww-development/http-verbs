@@ -32,23 +32,23 @@ class ResponseUtilsSpec extends PlaySpec with MockitoSugar with HttpExceptions w
   "processHttpResponse" should {
     "return testString" in new Setup {
       val resp = mockResponse(testEnc, OK)
-      val result = testUtil.processHttpResponse[String](resp)
-      result mustBe "testString"
+      val result = testUtil.processHttpResponse(resp)
+      result mustBe resp
     }
 
     "throw a BadRequestException" in new Setup {
       val resp = mockResponse("",BAD_REQUEST)
-      intercept[BadRequestException](testUtil.processHttpResponse[String](resp))
+      intercept[BadRequestException](testUtil.processHttpResponse(resp))
     }
 
     "throw a ForbiddenException" in new Setup {
       val resp = mockResponse("",FORBIDDEN)
-      intercept[ForbiddenException](testUtil.processHttpResponse[String](resp))
+      intercept[ForbiddenException](testUtil.processHttpResponse(resp))
     }
 
     "throw a NotFoundException" in new Setup {
       val resp = mockResponse("",NOT_FOUND)
-      intercept[NotFoundException](testUtil.processHttpResponse[String](resp))
+      intercept[NotFoundException](testUtil.processHttpResponse(resp))
     }
   }
 }

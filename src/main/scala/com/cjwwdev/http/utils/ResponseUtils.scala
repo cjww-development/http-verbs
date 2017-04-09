@@ -16,20 +16,19 @@
 package com.cjwwdev.http.utils
 
 import com.cjwwdev.http.exceptions.HttpExceptions
-import com.cjwwdev.security.encryption.DataSecurity
 import play.api.libs.ws.WSResponse
 import play.api.http.Status._
-import play.api.libs.json.Format
 
 trait ResponseUtils extends HttpExceptions {
 
-  def processHttpResponse[T](wsResponse: WSResponse)(implicit format: Format[T]): T = {
+  def processHttpResponse(wsResponse: WSResponse): WSResponse = {
     wsResponse.status match {
-      case OK => DataSecurity.decryptInto[T](wsResponse.body).get
-      case BAD_REQUEST => throw new BadRequestException(s"There was a problem ")
-      case FORBIDDEN => throw new ForbiddenException(s"Action was declared forbidden! ${wsResponse.status}")
-      case NOT_FOUND => throw new NotFoundException(s"Http request to destination has returned a ${wsResponse.status}")
-      case INTERNAL_SERVER_ERROR => throw new InternalServerErrorException(s"The destination server has encountered an error ${wsResponse.status}")
+      case OK                     => wsResponse
+      case BAD_REQUEST            => throw new BadRequestException(s"There was a problem ")
+      case FORBIDDEN              => throw new ForbiddenException(s"Action was declared forbidden! ${wsResponse.status}")
+      case NOT_FOUND              => throw new NotFoundException(s"Http request to destination has returned a ${wsResponse.status}")
+      case CONFLICT               => throw new ConflictException(s"Http request to destination has return a ${wsResponse.status}")
+      case INTERNAL_SERVER_ERROR  => throw new InternalServerErrorException(s"The destination server has encountered an error ${wsResponse.status}")
     }
   }
 }

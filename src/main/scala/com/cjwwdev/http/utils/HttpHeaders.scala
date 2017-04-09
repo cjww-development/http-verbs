@@ -16,11 +16,29 @@
 
 package com.cjwwdev.http.utils
 
+import com.cjwwdev.http.exceptions.HttpExceptions
 import com.cjwwdev.security.encryption.SHA512
 import play.api.http.HeaderNames.CONTENT_TYPE
 import play.api.http.MimeTypes.TEXT
+import play.api.mvc.Request
 
-trait HttpHeaders extends ApplicationConfiguration {
+import scala.util.{Failure, Success, Try}
+
+trait HttpHeaders extends ApplicationConfiguration with HttpExceptions {
   def appIdHeader: (String, String) = "appID" -> SHA512.encrypt(APPLICATION_ID)
   def contentTypeHeader: (String, String) = CONTENT_TYPE -> TEXT
+
+  def sessionIdHeader(implicit request: Request[_]): (String, String) = {
+    Try(request.session("sessionId")) match {
+      case Success(sId) => "sessionId" -> sId
+      case Failure(_) => "sessionId" -> "INVALID_SESSION_ID"
+    }
+  }
+
+  def contextIdHeader(implicit request: Request[_]): (String, String) = {
+    Try(request.session("contextId")) match {
+      case Success(cId) => "contextId" -> cId
+      case Failure(_) => "contextId" -> "INVALID_CONTEXT_ID"
+    }
+  }
 }

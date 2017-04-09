@@ -30,6 +30,7 @@ trait HttpExceptions {
   class BadRequestException(message: String) extends HttpException(message, BAD_REQUEST)
   class ForbiddenException(message: String) extends HttpException(message, FORBIDDEN)
   class NotFoundException(message: String) extends HttpException(message, NOT_FOUND)
+  class ConflictException(message: String) extends HttpException(message, CONFLICT)
 
   class InternalServerErrorException(message: String) extends HttpException(message, INTERNAL_SERVER_ERROR)
 }
