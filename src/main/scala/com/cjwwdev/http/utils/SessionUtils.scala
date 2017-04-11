@@ -25,7 +25,8 @@ trait SessionUtils extends HttpExceptions {
       case Some(id) => id
       case None =>
         Logger.error("[HttpSession] - [getCookieId] : CookieId is not present in request session!")
-        throw new CookieIdNotFound("ERROR User not authenticated; no cookieId present in request session")
+        //throw new CookieIdNotFound("ERROR User not authenticated; no cookieId present in request session")
+        "invalid-cookie"
     }
   }
 
@@ -34,7 +35,7 @@ trait SessionUtils extends HttpExceptions {
       case Some(id) => id
       case None =>
         Logger.error("[HttpSession] - [getContextId] : ContextId is not present in request session!")
-        throw new ContextIdNotFound("ERROR User not authenticated; no contextId present in request session")
+        "invalid-context"
     }
   }
 

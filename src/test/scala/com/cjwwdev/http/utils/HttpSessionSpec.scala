@@ -33,9 +33,9 @@ class HttpSessionSpec extends PlaySpec with HttpExceptions with OneAppPerSuite {
       result mustBe "testCookieId"
     }
 
-    "throw a CookieIdNotFound exception if the cookieId is not present in the http session" in new Setup {
+    "return invalid cookie if the cookieId is not present in the http session" in new Setup {
       implicit val request = FakeRequest()
-      intercept[CookieIdNotFound](testHttpSession.getCookieId)
+      testHttpSession.getCookieId mustBe "invalid-cookie"
     }
   }
 
@@ -47,9 +47,9 @@ class HttpSessionSpec extends PlaySpec with HttpExceptions with OneAppPerSuite {
       result mustBe "testContextId"
     }
 
-    "throw a ContextIdNotFound exception if the contextId is not present in the http session" in new Setup {
+    "return invalid context if the contextId is not present in the http session" in new Setup {
       implicit val request = FakeRequest()
-      intercept[ContextIdNotFound](testHttpSession.getContextId)
+      testHttpSession.getContextId mustBe "invalid-context"
     }
   }
 
