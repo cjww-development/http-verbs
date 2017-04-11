@@ -29,9 +29,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 @Singleton
 class Http @Inject()(wsClient: WSClient) extends HttpHeaders with ResponseUtils {
   def GET(url: String)(implicit request: Request[_]): Future[WSResponse] = {
-    wsClient.url(url).withHeaders(appIdHeader, contentTypeHeader, sessionIdHeader, contentTypeHeader).get() map {
-      resp => processHttpResponse(resp)
-    }
+    wsClient.url(url).withHeaders(appIdHeader, contentTypeHeader, sessionIdHeader, contentTypeHeader).get()
   }
 
   def POST[T](url: String, data: T)(implicit request: Request[_], format: Format[T]): Future[WSResponse] = {
