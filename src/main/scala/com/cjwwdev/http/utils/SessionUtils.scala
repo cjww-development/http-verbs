@@ -22,19 +22,22 @@ import play.api.mvc.Request
 trait SessionUtils extends HttpExceptions {
   def getCookieId(implicit request: Request[_]): String = {
     request.session.get("cookieId") match {
-      case Some(id) => id
+      case Some(id) =>
+        Logger.info("[SessionUtils] - [getCookieId]: cookieId found in session")
+        id
       case None =>
-        Logger.error("[HttpSession] - [getCookieId] : CookieId is not present in request session!")
-        //throw new CookieIdNotFound("ERROR User not authenticated; no cookieId present in request session")
+        Logger.error("[SessionUtils] - [getCookieId] : cookieId is not present in request session!")
         "invalid-cookie"
     }
   }
 
   def getContextId(implicit request: Request[_]): String = {
     request.session.get("contextId") match {
-      case Some(id) => id
+      case Some(id) =>
+        Logger.info("[SessionUtils] - [getContextId]: contextId found in session")
+        id
       case None =>
-        Logger.error("[HttpSession] - [getContextId] : ContextId is not present in request session!")
+        Logger.error("[SessionUtils] - [getContextId] : contextId is not present in request session!")
         "invalid-context"
     }
   }
@@ -43,7 +46,7 @@ trait SessionUtils extends HttpExceptions {
     request.session.get("firstName") match {
       case Some(name) => name
       case None =>
-        Logger.error("[HttpSession] - [getFirstName] : First name is not present in the request session!")
+        Logger.error("[SessionUtils] - [getFirstName] : First name is not present in the request session!")
         throw new FirstNameNotFound("ERROR User not authenticated; no firstName present in request session")
     }
   }
@@ -52,7 +55,7 @@ trait SessionUtils extends HttpExceptions {
     request.session.get("lastName") match {
       case Some(name) => name
       case None =>
-        Logger.error("[HttpSession] - [getLastName] : Last name is not present in the request session!")
+        Logger.error("[SessionUtils] - [getLastName] : Last name is not present in the request session!")
         throw new LastNameNotFound("ERROR User not authenticated; no lastName present in request session")
     }
   }

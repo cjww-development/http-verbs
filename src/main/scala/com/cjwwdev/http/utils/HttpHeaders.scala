@@ -18,6 +18,7 @@ package com.cjwwdev.http.utils
 
 import com.cjwwdev.bootstrap.config.BaseConfiguration
 import com.cjwwdev.http.exceptions.HttpExceptions
+import com.cjwwdev.logging.Logger
 import play.api.http.HeaderNames.CONTENT_TYPE
 import play.api.http.MimeTypes.TEXT
 import play.api.mvc.Request
@@ -30,15 +31,23 @@ trait HttpHeaders extends BaseConfiguration with HttpExceptions {
 
   def sessionIdHeader(implicit request: Request[_]): (String, String) = {
     Try(request.session("sessionId")) match {
-      case Success(sId) => "sessionId" -> sId
-      case Failure(_) => "sessionId" -> "INVALID_SESSION_ID"
+      case Success(sId) =>
+        Logger.info("[HttpHeaders] - [sessionIdHeader]: session id found in header")
+        "sessionId" -> sId
+      case Failure(_) =>
+        Logger.warn("[HttpHeaders] - [sessionIdHeader]: no session id found in header")
+        "sessionId" -> "INVALID_SESSION_ID"
     }
   }
 
   def contextIdHeader(implicit request: Request[_]): (String, String) = {
     Try(request.session("contextId")) match {
-      case Success(cId) => "contextId" -> cId
-      case Failure(_) => "contextId" -> "INVALID_CONTEXT_ID"
+      case Success(cId) =>
+        Logger.info("[HttpHeaders] - [contextIdHeader]: context id found in header")
+        "contextId" -> cId
+      case Failure(_) =>
+        Logger.warn("[HttpHeaders] - [contextIdHeader]: no context id found in header")
+        "contextId" -> "INVALID_CONTEXT_ID"
     }
   }
 }
