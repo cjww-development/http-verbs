@@ -4,7 +4,7 @@ import scala.util.{Try, Success, Failure}
 val btVersion: String = {
   Try(ConfigFactory.load.getString("version")) match {
     case Success(ver) => ver
-    case Failure(_) => "INVALID_RELEASE_VERSION"
+    case Failure(_) => "0.1.0"
   }
 }
 
@@ -14,9 +14,9 @@ scalaVersion := "2.11.11"
 organization := "com.cjww-dev.libs"
 
 val cjwwDep: Seq[ModuleID] = Seq(
-  "com.cjww-dev.libs" % "logging_2.11" % "0.4.0",
-  "com.cjww-dev.libs" % "data-security_2.11" % "0.8.0",
-  "com.cjww-dev.libs" % "bootstrapper_2.11" % "1.3.0"
+  "com.cjww-dev.libs" % "logging_2.11" % "0.5.0",
+  "com.cjww-dev.libs" % "bootstrapper_2.11" % "1.4.2",
+  "com.cjww-dev.libs" % "data-security_2.11" % "0.10.0"
 )
 
 val testDep: Seq[ModuleID] = Seq(
@@ -30,6 +30,6 @@ libraryDependencies ++= cjwwDep
 resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
 
 bintrayOrganization := Some("cjww-development")
-bintrayReleaseOnPublish in ThisBuild := false
+bintrayReleaseOnPublish in ThisBuild := true
 bintrayRepository := "releases"
 bintrayOmitLicense := true

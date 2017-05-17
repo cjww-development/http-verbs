@@ -22,9 +22,7 @@ import play.api.mvc.Request
 trait SessionUtils extends HttpExceptions {
   def getCookieId(implicit request: Request[_]): String = {
     request.session.get("cookieId") match {
-      case Some(id) =>
-        Logger.info("[SessionUtils] - [getCookieId]: cookieId found in session")
-        id
+      case Some(id) => id
       case None =>
         Logger.error("[SessionUtils] - [getCookieId] : cookieId is not present in request session!")
         "invalid-cookie"
@@ -33,11 +31,18 @@ trait SessionUtils extends HttpExceptions {
 
   def getContextId(implicit request: Request[_]): String = {
     request.session.get("contextId") match {
-      case Some(id) =>
-        Logger.info("[SessionUtils] - [getContextId]: contextId found in session")
-        id
+      case Some(id) => id
       case None =>
         Logger.error("[SessionUtils] - [getContextId] : contextId is not present in request session!")
+        "invalid-context"
+    }
+  }
+
+  def getDeversityId(implicit request: Request[_]): String = {
+    request.session.get("devId") match {
+      case Some(id) => id
+      case None =>
+        Logger.error("[SessionUtils] - [getDeversityId] : contextId is not present in request session!")
         "invalid-context"
     }
   }
