@@ -26,7 +26,7 @@ class ResponseUtilsSpec extends PlaySpec with MockitoSugar with HttpExceptions w
   class Setup {
     val testUtil = new ResponseUtils {}
 
-    val testEnc = DataSecurity.encryptData[String]("testString").get
+    val testEnc = DataSecurity.encryptString("testString").get
   }
 
   "processHttpResponse" should {

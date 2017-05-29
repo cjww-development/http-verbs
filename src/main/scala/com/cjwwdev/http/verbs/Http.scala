@@ -33,7 +33,7 @@ class Http @Inject()(wsClient: WSClient) extends HttpHeaders with ResponseUtils 
   }
 
   def POST[T](url: String, data: T)(implicit request: Request[_], format: Format[T]): Future[WSResponse] = {
-    val body = DataSecurity.encryptData[T](data).get
+    val body = DataSecurity.encryptType[T](data).get
     wsClient.url(url)
       .withHeaders(appIdHeader, contentTypeHeader, sessionIdHeader, contextIdHeader)
       .withBody(body)
@@ -41,7 +41,7 @@ class Http @Inject()(wsClient: WSClient) extends HttpHeaders with ResponseUtils 
   }
 
   def PUT[T](url: String, data: T)(implicit request: Request[_], format: Format[T]): Future[WSResponse] = {
-    val body = DataSecurity.encryptData[T](data).get
+    val body = DataSecurity.encryptType[T](data).get
     wsClient.url(url)
       .withHeaders(appIdHeader, contentTypeHeader, sessionIdHeader, contextIdHeader)
       .withBody(body)
@@ -49,7 +49,7 @@ class Http @Inject()(wsClient: WSClient) extends HttpHeaders with ResponseUtils 
   }
 
   def PATCH[T](url: String, data: T)(implicit request: Request[_], format: Format[T]): Future[WSResponse] = {
-    val body = DataSecurity.encryptData[T](data).get
+    val body = DataSecurity.encryptType[T](data).get
     wsClient.url(url)
       .withHeaders(appIdHeader, contentTypeHeader, sessionIdHeader, contextIdHeader)
       .withBody(body)
