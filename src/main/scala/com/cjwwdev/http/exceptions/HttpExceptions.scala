@@ -27,6 +27,7 @@ trait HttpExceptions {
 
   class ForbiddenException(message: String) extends HttpException(message)
   class NotFoundException(message: String) extends HttpException(message)
+  class ConflictException(message: String) extends HttpException(message)
 
   class ClientErrorException(message: String) extends HttpException(message)
   class ServerErrorException(message: String) extends HttpException(message)

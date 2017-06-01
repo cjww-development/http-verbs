@@ -73,6 +73,15 @@ class ResponseUtilsSpec extends PlaySpec with MockitoSugar with GuiceOneAppPerSu
       }
     }
 
+    "throw a ConflictException" when {
+      "the response code is the client error range (4xx)" in new Setup {
+        implicit val request = FakeRequest("GET", "/fake/path")
+        val informationResponse = mockResponse("", CONFLICT)
+
+        intercept[ConflictException](testUtil.processHttpResponse(informationResponse))
+      }
+    }
+
     "throw a ServerErrorException" when {
       "the response code is the server error range (5xx)" in new Setup {
         implicit val request = FakeRequest("GET", "/fake/path")
@@ -120,6 +129,15 @@ class ResponseUtilsSpec extends PlaySpec with MockitoSugar with GuiceOneAppPerSu
         val successResponse = mockResponse("", NOT_FOUND)
 
         intercept[NotFoundException](testUtil.processHttpResponseIntoType[TestModel](successResponse))
+      }
+    }
+
+    "throw a ConflictException" when {
+      "the response code is in the client error range" in new Setup {
+        implicit val request = FakeRequest("GET", "/fake/path")
+        val successResponse = mockResponse("", CONFLICT)
+
+        intercept[ConflictException](testUtil.processHttpResponseIntoType[TestModel](successResponse))
       }
     }
 

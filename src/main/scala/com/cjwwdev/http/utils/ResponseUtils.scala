@@ -34,6 +34,7 @@ trait ResponseUtils extends HttpExceptions {
       case success()        => wsResponse
       case FORBIDDEN        => throw new ForbiddenException(s"Request was denied on path ${request.path}")
       case NOT_FOUND        => throw new NotFoundException(s"Resource NOT FOUND on path ${request.path}")
+      case CONFLICT         => throw new ConflictException(s"Resource was in conflict on path ${request.path}")
       case client()         => throw new ClientErrorException(s"Response was ${wsResponse.statusText} (${wsResponse.status}) from ${request.path}")
       case server()         => throw new ServerErrorException(s"Response was ${wsResponse.statusText} (${wsResponse.status}) from ${request.path}")
     }
@@ -47,6 +48,7 @@ trait ResponseUtils extends HttpExceptions {
       }
       case FORBIDDEN        => throw new ForbiddenException(s"Request was denied on path ${request.path}")
       case NOT_FOUND        => throw new NotFoundException(s"Resource NOT FOUND on path ${request.path}")
+      case CONFLICT         => throw new ConflictException(s"Resource was in conflict on path ${request.path}")
       case client()         => throw new ClientErrorException(s"Response was ${wsResponse.statusText} (${wsResponse.status}) from ${request.path}")
       case server()         => throw new ServerErrorException(s"Response was ${wsResponse.statusText} (${wsResponse.status}) from ${request.path}")
     }
