@@ -21,25 +21,15 @@ trait MockResponse {
 
   def mockResponse(bodyIn: String, code: Int) = new WSResponse {
     override def statusText = ""
-
     override def underlying[T] = ???
-
     override def xml = ???
-
     override def body = bodyIn
-
     override def header(key: String) = ???
-
     override def cookie(name: String) = ???
-
     override def bodyAsBytes = ???
-
     override def cookies = ???
-
     override def status = code
-
     override def json = ???
-
     override def allHeaders = ???
   }
 }

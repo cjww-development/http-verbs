@@ -16,19 +16,34 @@
 package com.cjwwdev.http.utils
 
 import com.cjwwdev.http.exceptions.HttpExceptions
+import com.cjwwdev.security.encryption.DataSecurity
+import play.api.libs.json.Reads
 import play.api.libs.ws.WSResponse
-import play.api.http.Status._
+import play.api.mvc.Request
 
 trait ResponseUtils extends HttpExceptions {
+  class Contains(r : Range) { def unapply(i : Int) : Boolean = r contains i }
 
-  def processHttpResponse(wsResponse: WSResponse): WSResponse = {
+  private val success       = new Contains(200 to 299)
+  private val client        = new Contains(400 to 499)
+  private val server        = new Contains(500 to 699)
+
+  def processHttpResponse(wsResponse: WSResponse)(implicit request: Request[_]): WSResponse = {
     wsResponse.status match {
-      case OK                     => wsResponse
-      case BAD_REQUEST            => throw new BadRequestException(s"There was a problem ")
-      case FORBIDDEN              => throw new ForbiddenException(s"Action was declared forbidden! ${wsResponse.status}")
-      case NOT_FOUND              => throw new NotFoundException(s"Http request to destination has returned a ${wsResponse.status}")
-      case CONFLICT               => throw new ConflictException(s"Http request to destination has return a ${wsResponse.status}")
-      case INTERNAL_SERVER_ERROR  => throw new InternalServerErrorException(s"The destination server has encountered an error ${wsResponse.status}")
+      case success()        => wsResponse
+      case client()         => throw new ClientErrorException(s"Response was ${wsResponse.statusText} (${wsResponse.status}) from ${request.path}")
+      case server()         => throw new ServerErrorException(s"Response was ${wsResponse.statusText} (${wsResponse.status}) from ${request.path}")
+    }
+  }
+
+  def processHttpResponseIntoType[T](wsResponse: WSResponse)(implicit request: Request[_], reads: Reads[T]): T = {
+    wsResponse.status match {
+      case success()        => DataSecurity.decryptIntoType[T](wsResponse.body) match {
+        case Some(data)     => data
+        case None           => throw new HttpDecryptionException(s"Response body failed decryption from ${request.path} (response code ${wsResponse.status})")
+      }
+      case client()         => throw new ClientErrorException(s"Response was ${wsResponse.statusText} (${wsResponse.status}) from ${request.path}")
+      case server()         => throw new ServerErrorException(s"Response was ${wsResponse.statusText} (${wsResponse.status}) from ${request.path}")
     }
   }
 }

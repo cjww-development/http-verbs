@@ -19,7 +19,7 @@ import javax.inject.{Inject, Singleton}
 
 import com.cjwwdev.http.utils.{HttpHeaders, ResponseUtils}
 import com.cjwwdev.security.encryption.DataSecurity
-import play.api.libs.json.Format
+import play.api.libs.json.{Format, Reads}
 import play.api.libs.ws.{WSClient, WSResponse}
 import play.api.mvc.Request
 
@@ -28,8 +28,16 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 @Singleton
 class Http @Inject()(wsClient: WSClient) extends HttpHeaders with ResponseUtils {
-  def GET(url: String)(implicit request: Request[_]): Future[WSResponse] = {
-    wsClient.url(url).withHeaders(appIdHeader, contentTypeHeader, sessionIdHeader, contextIdHeader).get()
+  def HEAD(url: String)(implicit request: Request[_]): Future[WSResponse] = {
+    wsClient.url(url).withHeaders(appIdHeader, contentTypeHeader, sessionIdHeader, contextIdHeader).head map { resp =>
+      processHttpResponse(resp)
+    }
+  }
+
+  def GET[T](url: String)(implicit request: Request[_], reads: Reads[T]): Future[T] = {
+    wsClient.url(url).withHeaders(appIdHeader, contentTypeHeader, sessionIdHeader, contextIdHeader).get map { resp =>
+      processHttpResponseIntoType(resp)
+    }
   }
 
   def POST[T](url: String, data: T)(implicit request: Request[_], format: Format[T]): Future[WSResponse] = {

@@ -21,34 +21,88 @@ import com.cjwwdev.security.encryption.DataSecurity
 import play.api.http.Status._
 import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.PlaySpec
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.libs.json.{Format, Json}
+import play.api.test.FakeRequest
 
-class ResponseUtilsSpec extends PlaySpec with MockitoSugar with HttpExceptions with MockResponse {
+class ResponseUtilsSpec extends PlaySpec with MockitoSugar with GuiceOneAppPerSuite with HttpExceptions with MockResponse {
   class Setup {
     val testUtil = new ResponseUtils {}
 
     val testEnc = DataSecurity.encryptString("testString").get
   }
 
+  case class TestModel(string: String, int: Int)
+  implicit val format: Format[TestModel] = Json.format[TestModel]
+
   "processHttpResponse" should {
-    "return testString" in new Setup {
-      val resp = mockResponse(testEnc, OK)
-      val result = testUtil.processHttpResponse(resp)
-      result mustBe resp
+    "return the response" when {
+      "the response code is in the success range (2xx)" in new Setup {
+        implicit val request = FakeRequest("GET", "/fake/path")
+        val informationResponse = mockResponse("", OK)
+
+        val result = testUtil.processHttpResponse(informationResponse)
+        result mustBe informationResponse
+      }
     }
 
-    "throw a BadRequestException" in new Setup {
-      val resp = mockResponse("",BAD_REQUEST)
-      intercept[BadRequestException](testUtil.processHttpResponse(resp))
+    "throw a ClientErrorException" when {
+      "the response code is the client error range (4xx)" in new Setup {
+        implicit val request = FakeRequest("GET", "/fake/path")
+        val informationResponse = mockResponse("", BAD_REQUEST)
+
+        intercept[ClientErrorException](testUtil.processHttpResponse(informationResponse))
+      }
     }
 
-    "throw a ForbiddenException" in new Setup {
-      val resp = mockResponse("",FORBIDDEN)
-      intercept[ForbiddenException](testUtil.processHttpResponse(resp))
+    "throw a ServerErrorException" when {
+      "the response code is the server error range (5xx)" in new Setup {
+        implicit val request = FakeRequest("GET", "/fake/path")
+        val informationResponse = mockResponse("", INTERNAL_SERVER_ERROR)
+
+        intercept[ServerErrorException](testUtil.processHttpResponse(informationResponse))
+      }
+    }
+  }
+
+  "processHttpResponseIntoType" should {
+    "return a test model" when {
+      "the response code is in the success range and the body has been decrypted" in new Setup {
+        implicit val request = FakeRequest("GET", "/fake/path")
+        val input = TestModel("testString", 616)
+        val enc = DataSecurity.encryptType[TestModel](input).get
+        val successResponse = mockResponse(enc, OK)
+
+        val result = testUtil.processHttpResponseIntoType[TestModel](successResponse)
+        result mustBe input
+      }
     }
 
-    "throw a NotFoundException" in new Setup {
-      val resp = mockResponse("",NOT_FOUND)
-      intercept[NotFoundException](testUtil.processHttpResponse(resp))
+    "throw a HttpDecryptionException" when {
+      "the response code is in the success range but the body couldn't be decrypted" in new Setup {
+        implicit val request = FakeRequest("GET", "/fake/path")
+        val successResponse = mockResponse("INVALID_BODY", OK)
+
+        intercept[HttpDecryptionException](testUtil.processHttpResponseIntoType[TestModel](successResponse))
+      }
+    }
+
+    "throw a ClientErrorException" when {
+      "the response code is in the client error range" in new Setup {
+        implicit val request = FakeRequest("GET", "/fake/path")
+        val successResponse = mockResponse("", BAD_REQUEST)
+
+        intercept[ClientErrorException](testUtil.processHttpResponseIntoType[TestModel](successResponse))
+      }
+    }
+
+    "throw a ServerErrorException" when {
+      "the response code is in the server error range" in new Setup {
+        implicit val request = FakeRequest("GET", "/fake/path")
+        val successResponse = mockResponse("INVALID_BODY", INTERNAL_SERVER_ERROR)
+
+        intercept[ServerErrorException](testUtil.processHttpResponseIntoType[TestModel](successResponse))
+      }
     }
   }
 }

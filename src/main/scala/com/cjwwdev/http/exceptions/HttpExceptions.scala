@@ -16,21 +16,18 @@
 
 package com.cjwwdev.http.exceptions
 
-import play.api.http.Status._
-
 trait HttpExceptions {
   class HttpHeaderException(message: String) extends Exception(message)
-  class HttpException(message: String, responseCode: Int) extends Exception(message)
+  class HttpException(message: String) extends Exception(message)
 
   class CookieIdNotFound(message: String) extends HttpHeaderException(message)
   class ContextIdNotFound(message: String) extends HttpHeaderException(message)
   class FirstNameNotFound(message: String) extends HttpHeaderException(message)
   class LastNameNotFound(message: String) extends HttpHeaderException(message)
 
-  class BadRequestException(message: String) extends HttpException(message, BAD_REQUEST)
-  class ForbiddenException(message: String) extends HttpException(message, FORBIDDEN)
-  class NotFoundException(message: String) extends HttpException(message, NOT_FOUND)
-  class ConflictException(message: String) extends HttpException(message, CONFLICT)
+  class ForbiddenException(message: String) extends HttpException(message)
 
-  class InternalServerErrorException(message: String) extends HttpException(message, INTERNAL_SERVER_ERROR)
+  class ClientErrorException(message: String) extends HttpException(message)
+  class ServerErrorException(message: String) extends HttpException(message)
+  class HttpDecryptionException(message: String) extends HttpException(message)
 }
