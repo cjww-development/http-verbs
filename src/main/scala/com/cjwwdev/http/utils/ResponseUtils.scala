@@ -19,6 +19,7 @@ import com.cjwwdev.http.exceptions.HttpExceptions
 import com.cjwwdev.security.encryption.DataSecurity
 import play.api.libs.json.Reads
 import play.api.libs.ws.WSResponse
+import play.api.http.Status._
 import play.api.mvc.Request
 
 trait ResponseUtils extends HttpExceptions {
@@ -31,6 +32,8 @@ trait ResponseUtils extends HttpExceptions {
   def processHttpResponse(wsResponse: WSResponse)(implicit request: Request[_]): WSResponse = {
     wsResponse.status match {
       case success()        => wsResponse
+      case FORBIDDEN        => throw new ForbiddenException(s"Request was denied on path ${request.path}")
+      case NOT_FOUND        => throw new NotFoundException(s"Resource NOT FOUND on path ${request.path}")
       case client()         => throw new ClientErrorException(s"Response was ${wsResponse.statusText} (${wsResponse.status}) from ${request.path}")
       case server()         => throw new ServerErrorException(s"Response was ${wsResponse.statusText} (${wsResponse.status}) from ${request.path}")
     }
@@ -42,6 +45,8 @@ trait ResponseUtils extends HttpExceptions {
         case Some(data)     => data
         case None           => throw new HttpDecryptionException(s"Response body failed decryption from ${request.path} (response code ${wsResponse.status})")
       }
+      case FORBIDDEN        => throw new ForbiddenException(s"Request was denied on path ${request.path}")
+      case NOT_FOUND        => throw new NotFoundException(s"Resource NOT FOUND on path ${request.path}")
       case client()         => throw new ClientErrorException(s"Response was ${wsResponse.statusText} (${wsResponse.status}) from ${request.path}")
       case server()         => throw new ServerErrorException(s"Response was ${wsResponse.statusText} (${wsResponse.status}) from ${request.path}")
     }

@@ -45,7 +45,7 @@ class Http @Inject()(wsClient: WSClient) extends HttpHeaders with ResponseUtils 
     wsClient.url(url)
       .withHeaders(appIdHeader, contentTypeHeader, sessionIdHeader, contextIdHeader)
       .withBody(body)
-      .post(body)
+      .post(body) map(resp => processHttpResponse(resp))
   }
 
   def PUT[T](url: String, data: T)(implicit request: Request[_], format: Format[T]): Future[WSResponse] = {
@@ -53,7 +53,7 @@ class Http @Inject()(wsClient: WSClient) extends HttpHeaders with ResponseUtils 
     wsClient.url(url)
       .withHeaders(appIdHeader, contentTypeHeader, sessionIdHeader, contextIdHeader)
       .withBody(body)
-      .put(body)
+      .put(body) map(resp => processHttpResponse(resp))
   }
 
   def PATCH[T](url: String, data: T)(implicit request: Request[_], format: Format[T]): Future[WSResponse] = {
@@ -61,10 +61,11 @@ class Http @Inject()(wsClient: WSClient) extends HttpHeaders with ResponseUtils 
     wsClient.url(url)
       .withHeaders(appIdHeader, contentTypeHeader, sessionIdHeader, contextIdHeader)
       .withBody(body)
-      .patch(body)
+      .patch(body) map(resp => processHttpResponse(resp))
   }
 
   def DELETE(url: String)(implicit request: Request[_]): Future[WSResponse] = {
-    wsClient.url(url).withHeaders(appIdHeader, contentTypeHeader, sessionIdHeader, contextIdHeader).delete()
+    wsClient.url(url).withHeaders(appIdHeader, contentTypeHeader, sessionIdHeader, contextIdHeader)
+      .delete map(resp => processHttpResponse(resp))
   }
 }
