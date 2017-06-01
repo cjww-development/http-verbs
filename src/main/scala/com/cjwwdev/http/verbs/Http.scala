@@ -19,7 +19,7 @@ import javax.inject.{Inject, Singleton}
 
 import com.cjwwdev.http.utils.{HttpHeaders, ResponseUtils}
 import com.cjwwdev.security.encryption.DataSecurity
-import play.api.libs.json.{Format, Reads}
+import play.api.libs.json.{Format, OWrites, Reads}
 import play.api.libs.ws.{WSClient, WSResponse}
 import play.api.mvc.Request
 
@@ -40,7 +40,7 @@ class Http @Inject()(wsClient: WSClient) extends HttpHeaders with ResponseUtils 
     }
   }
 
-  def POST[T](url: String, data: T)(implicit request: Request[_], format: Format[T]): Future[WSResponse] = {
+  def POST[T](url: String, data: T)(implicit request: Request[_], writes: OWrites[T]): Future[WSResponse] = {
     val body = DataSecurity.encryptType[T](data).get
     wsClient.url(url)
       .withHeaders(appIdHeader, contentTypeHeader, sessionIdHeader, contextIdHeader)
@@ -48,7 +48,7 @@ class Http @Inject()(wsClient: WSClient) extends HttpHeaders with ResponseUtils 
       .post(body) map(resp => processHttpResponse(resp))
   }
 
-  def PUT[T](url: String, data: T)(implicit request: Request[_], format: Format[T]): Future[WSResponse] = {
+  def PUT[T](url: String, data: T)(implicit request: Request[_], writes: OWrites[T]): Future[WSResponse] = {
     val body = DataSecurity.encryptType[T](data).get
     wsClient.url(url)
       .withHeaders(appIdHeader, contentTypeHeader, sessionIdHeader, contextIdHeader)
@@ -56,7 +56,7 @@ class Http @Inject()(wsClient: WSClient) extends HttpHeaders with ResponseUtils 
       .put(body) map(resp => processHttpResponse(resp))
   }
 
-  def PATCH[T](url: String, data: T)(implicit request: Request[_], format: Format[T]): Future[WSResponse] = {
+  def PATCH[T](url: String, data: T)(implicit request: Request[_], writes: OWrites[T]): Future[WSResponse] = {
     val body = DataSecurity.encryptType[T](data).get
     wsClient.url(url)
       .withHeaders(appIdHeader, contentTypeHeader, sessionIdHeader, contextIdHeader)
