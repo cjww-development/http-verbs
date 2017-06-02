@@ -15,19 +15,19 @@
 // limitations under the License.
 package com.cjwwdev.http.utils
 
-import com.cjwwdev.http.exceptions.HttpExceptions
+import com.cjwwdev.http.exceptions._
 import com.cjwwdev.security.encryption.DataSecurity
 import play.api.libs.json.Reads
 import play.api.libs.ws.WSResponse
 import play.api.http.Status._
 import play.api.mvc.Request
 
-trait ResponseUtils extends HttpExceptions {
+trait ResponseUtils {
   class Contains(r : Range) { def unapply(i : Int) : Boolean = r contains i }
 
   private val success       = new Contains(200 to 299)
   private val client        = new Contains(400 to 499)
-  private val server        = new Contains(500 to 699)
+  private val server        = new Contains(500 to 599)
 
   def processHttpResponse(wsResponse: WSResponse)(implicit request: Request[_]): WSResponse = {
     wsResponse.status match {

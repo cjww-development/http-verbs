@@ -15,11 +15,11 @@
 // limitations under the License.
 package com.cjwwdev.http.utils
 
-import com.cjwwdev.http.exceptions.HttpExceptions
+import com.cjwwdev.http.exceptions.{FirstNameNotFound, LastNameNotFound}
 import play.api.Logger
 import play.api.mvc.Request
 
-trait SessionUtils extends HttpExceptions {
+trait SessionUtils {
   def getCookieId(implicit request: Request[_]): String = {
     request.session.get("cookieId") match {
       case Some(id) => id

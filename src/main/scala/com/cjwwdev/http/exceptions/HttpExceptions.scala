@@ -16,20 +16,18 @@
 
 package com.cjwwdev.http.exceptions
 
-trait HttpExceptions {
-  class HttpHeaderException(message: String) extends Exception(message)
-  class HttpException(message: String) extends Exception(message)
+class HttpHeaderException(message: String) extends Exception(message)
+class HttpException(message: String) extends Exception(message)
 
-  class CookieIdNotFound(message: String) extends HttpHeaderException(message)
-  class ContextIdNotFound(message: String) extends HttpHeaderException(message)
-  class FirstNameNotFound(message: String) extends HttpHeaderException(message)
-  class LastNameNotFound(message: String) extends HttpHeaderException(message)
+class CookieIdNotFound(message: String) extends HttpHeaderException(message)
+class ContextIdNotFound(message: String) extends HttpHeaderException(message)
+class FirstNameNotFound(message: String) extends HttpHeaderException(message)
+class LastNameNotFound(message: String) extends HttpHeaderException(message)
 
-  class ForbiddenException(message: String) extends HttpException(message)
-  class NotFoundException(message: String) extends HttpException(message)
-  class ConflictException(message: String) extends HttpException(message)
+class ForbiddenException(message: String) extends HttpException(message)
+class NotFoundException(message: String) extends HttpException(message)
+class ConflictException(message: String) extends HttpException(message)
 
-  class ClientErrorException(message: String) extends HttpException(message)
-  class ServerErrorException(message: String) extends HttpException(message)
-  class HttpDecryptionException(message: String) extends HttpException(message)
-}
+class ClientErrorException(message: String) extends HttpException(message)
+class ServerErrorException(message: String) extends HttpException(message)
+class HttpDecryptionException(message: String) extends HttpException(message)

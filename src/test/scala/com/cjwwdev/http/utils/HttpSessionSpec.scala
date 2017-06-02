@@ -15,11 +15,11 @@
 // limitations under the License.
 package com.cjwwdev.http.utils
 
-import com.cjwwdev.http.exceptions.HttpExceptions
+import com.cjwwdev.http.exceptions.{FirstNameNotFound, LastNameNotFound}
 import org.scalatestplus.play.{OneAppPerSuite, PlaySpec}
 import play.api.test.FakeRequest
 
-class HttpSessionSpec extends PlaySpec with HttpExceptions with OneAppPerSuite {
+class HttpSessionSpec extends PlaySpec with OneAppPerSuite {
 
   class Setup {
     val testHttpSession = new SessionUtils{}

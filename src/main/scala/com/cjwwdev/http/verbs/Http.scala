@@ -19,7 +19,7 @@ import javax.inject.{Inject, Singleton}
 
 import com.cjwwdev.http.utils.{HttpHeaders, ResponseUtils}
 import com.cjwwdev.security.encryption.DataSecurity
-import play.api.libs.json.{Format, OWrites, Reads}
+import play.api.libs.json.{OWrites, Reads}
 import play.api.libs.ws.{WSClient, WSResponse}
 import play.api.mvc.Request
 

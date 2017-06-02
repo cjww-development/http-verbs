@@ -17,7 +17,6 @@
 package com.cjwwdev.http.utils
 
 import com.cjwwdev.bootstrap.config.BaseConfiguration
-import com.cjwwdev.http.exceptions.HttpExceptions
 import com.cjwwdev.logging.Logger
 import play.api.http.HeaderNames.CONTENT_TYPE
 import play.api.http.MimeTypes.TEXT
@@ -25,7 +24,7 @@ import play.api.mvc.Request
 
 import scala.util.{Failure, Success, Try}
 
-trait HttpHeaders extends BaseConfiguration with HttpExceptions {
+trait HttpHeaders extends BaseConfiguration {
   def appIdHeader: (String, String) = "appID" -> APPLICATION_ID
   def contentTypeHeader: (String, String) = CONTENT_TYPE -> TEXT
 

@@ -15,7 +15,7 @@
 // limitations under the License.
 package com.cjwwdev.http.utils
 
-import com.cjwwdev.http.exceptions.HttpExceptions
+import com.cjwwdev.http.exceptions._
 import com.cjwwdev.http.mocks.MockResponse
 import com.cjwwdev.security.encryption.DataSecurity
 import play.api.http.Status._
@@ -25,7 +25,7 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.{Format, Json}
 import play.api.test.FakeRequest
 
-class ResponseUtilsSpec extends PlaySpec with MockitoSugar with GuiceOneAppPerSuite with HttpExceptions with MockResponse {
+class ResponseUtilsSpec extends PlaySpec with MockitoSugar with GuiceOneAppPerSuite with MockResponse {
   class Setup {
     val testUtil = new ResponseUtils {}
 
