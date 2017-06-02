@@ -28,8 +28,8 @@ import play.api.test.FakeRequest
 class ResponseUtilsSpec extends PlaySpec with MockitoSugar with GuiceOneAppPerSuite with MockResponse {
   class Setup {
     val testUtil = new ResponseUtils {}
-
     val testEnc = DataSecurity.encryptString("testString").get
+    val testUrl = "/test/url"
   }
 
   case class TestModel(string: String, int: Int)
@@ -41,7 +41,7 @@ class ResponseUtilsSpec extends PlaySpec with MockitoSugar with GuiceOneAppPerSu
         implicit val request = FakeRequest("GET", "/fake/path")
         val informationResponse = mockResponse("", OK)
 
-        val result = testUtil.processHttpResponse(informationResponse)
+        val result = testUtil.processHttpResponse(testUrl, informationResponse)
         result mustBe informationResponse
       }
     }
@@ -51,7 +51,7 @@ class ResponseUtilsSpec extends PlaySpec with MockitoSugar with GuiceOneAppPerSu
         implicit val request = FakeRequest("GET", "/fake/path")
         val informationResponse = mockResponse("", BAD_REQUEST)
 
-        intercept[ClientErrorException](testUtil.processHttpResponse(informationResponse))
+        intercept[ClientErrorException](testUtil.processHttpResponse(testUrl, informationResponse))
       }
     }
 
@@ -60,7 +60,7 @@ class ResponseUtilsSpec extends PlaySpec with MockitoSugar with GuiceOneAppPerSu
         implicit val request = FakeRequest("GET", "/fake/path")
         val informationResponse = mockResponse("", NOT_FOUND)
 
-        intercept[NotFoundException](testUtil.processHttpResponse(informationResponse))
+        intercept[NotFoundException](testUtil.processHttpResponse(testUrl, informationResponse))
       }
     }
 
@@ -69,7 +69,7 @@ class ResponseUtilsSpec extends PlaySpec with MockitoSugar with GuiceOneAppPerSu
         implicit val request = FakeRequest("GET", "/fake/path")
         val informationResponse = mockResponse("", FORBIDDEN)
 
-        intercept[ForbiddenException](testUtil.processHttpResponse(informationResponse))
+        intercept[ForbiddenException](testUtil.processHttpResponse(testUrl, informationResponse))
       }
     }
 
@@ -78,7 +78,7 @@ class ResponseUtilsSpec extends PlaySpec with MockitoSugar with GuiceOneAppPerSu
         implicit val request = FakeRequest("GET", "/fake/path")
         val informationResponse = mockResponse("", CONFLICT)
 
-        intercept[ConflictException](testUtil.processHttpResponse(informationResponse))
+        intercept[ConflictException](testUtil.processHttpResponse(testUrl, informationResponse))
       }
     }
 
@@ -87,7 +87,7 @@ class ResponseUtilsSpec extends PlaySpec with MockitoSugar with GuiceOneAppPerSu
         implicit val request = FakeRequest("GET", "/fake/path")
         val informationResponse = mockResponse("", INTERNAL_SERVER_ERROR)
 
-        intercept[ServerErrorException](testUtil.processHttpResponse(informationResponse))
+        intercept[ServerErrorException](testUtil.processHttpResponse(testUrl, informationResponse))
       }
     }
   }
@@ -100,7 +100,7 @@ class ResponseUtilsSpec extends PlaySpec with MockitoSugar with GuiceOneAppPerSu
         val enc = DataSecurity.encryptType[TestModel](input).get
         val successResponse = mockResponse(enc, OK)
 
-        val result = testUtil.processHttpResponseIntoType[TestModel](successResponse)
+        val result = testUtil.processHttpResponseIntoType[TestModel](testUrl, successResponse)
         result mustBe input
       }
     }
@@ -110,7 +110,7 @@ class ResponseUtilsSpec extends PlaySpec with MockitoSugar with GuiceOneAppPerSu
         implicit val request = FakeRequest("GET", "/fake/path")
         val successResponse = mockResponse("INVALID_BODY", OK)
 
-        intercept[HttpDecryptionException](testUtil.processHttpResponseIntoType[TestModel](successResponse))
+        intercept[HttpDecryptionException](testUtil.processHttpResponseIntoType[TestModel](testUrl, successResponse))
       }
     }
 
@@ -119,7 +119,7 @@ class ResponseUtilsSpec extends PlaySpec with MockitoSugar with GuiceOneAppPerSu
         implicit val request = FakeRequest("GET", "/fake/path")
         val successResponse = mockResponse("", BAD_REQUEST)
 
-        intercept[ClientErrorException](testUtil.processHttpResponseIntoType[TestModel](successResponse))
+        intercept[ClientErrorException](testUtil.processHttpResponseIntoType[TestModel](testUrl, successResponse))
       }
     }
 
@@ -128,7 +128,7 @@ class ResponseUtilsSpec extends PlaySpec with MockitoSugar with GuiceOneAppPerSu
         implicit val request = FakeRequest("GET", "/fake/path")
         val successResponse = mockResponse("", NOT_FOUND)
 
-        intercept[NotFoundException](testUtil.processHttpResponseIntoType[TestModel](successResponse))
+        intercept[NotFoundException](testUtil.processHttpResponseIntoType[TestModel](testUrl, successResponse))
       }
     }
 
@@ -137,7 +137,7 @@ class ResponseUtilsSpec extends PlaySpec with MockitoSugar with GuiceOneAppPerSu
         implicit val request = FakeRequest("GET", "/fake/path")
         val successResponse = mockResponse("", CONFLICT)
 
-        intercept[ConflictException](testUtil.processHttpResponseIntoType[TestModel](successResponse))
+        intercept[ConflictException](testUtil.processHttpResponseIntoType[TestModel](testUrl, successResponse))
       }
     }
 
@@ -146,7 +146,7 @@ class ResponseUtilsSpec extends PlaySpec with MockitoSugar with GuiceOneAppPerSu
         implicit val request = FakeRequest("GET", "/fake/path")
         val successResponse = mockResponse("", FORBIDDEN)
 
-        intercept[ForbiddenException](testUtil.processHttpResponseIntoType[TestModel](successResponse))
+        intercept[ForbiddenException](testUtil.processHttpResponseIntoType[TestModel](testUrl, successResponse))
       }
     }
 
@@ -155,7 +155,7 @@ class ResponseUtilsSpec extends PlaySpec with MockitoSugar with GuiceOneAppPerSu
         implicit val request = FakeRequest("GET", "/fake/path")
         val successResponse = mockResponse("INVALID_BODY", INTERNAL_SERVER_ERROR)
 
-        intercept[ServerErrorException](testUtil.processHttpResponseIntoType[TestModel](successResponse))
+        intercept[ServerErrorException](testUtil.processHttpResponseIntoType[TestModel](testUrl, successResponse))
       }
     }
   }

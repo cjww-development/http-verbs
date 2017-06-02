@@ -16,6 +16,7 @@
 package com.cjwwdev.http.utils
 
 import com.cjwwdev.http.exceptions._
+import com.cjwwdev.logging.Logger
 import com.cjwwdev.security.encryption.DataSecurity
 import play.api.libs.json.Reads
 import play.api.libs.ws.WSResponse
@@ -29,28 +30,50 @@ trait ResponseUtils {
   private val client        = new Contains(400 to 499)
   private val server        = new Contains(500 to 599)
 
-  def processHttpResponse(wsResponse: WSResponse)(implicit request: Request[_]): WSResponse = {
+  def processHttpResponse(url: String, wsResponse: WSResponse)(implicit request: Request[_]): WSResponse = {
     wsResponse.status match {
-      case success()        => wsResponse
-      case FORBIDDEN        => throw new ForbiddenException(s"Request was denied on path ${request.path}")
-      case NOT_FOUND        => throw new NotFoundException(s"Resource NOT FOUND on path ${request.path}")
-      case CONFLICT         => throw new ConflictException(s"Resource was in conflict on path ${request.path}")
-      case client()         => throw new ClientErrorException(s"Response was ${wsResponse.statusText} (${wsResponse.status}) from ${request.path}")
-      case server()         => throw new ServerErrorException(s"Response was ${wsResponse.statusText} (${wsResponse.status}) from ${request.path}")
+      case success() => wsResponse
+      case FORBIDDEN =>
+        Logger.error(s"[Http] - [${request.method.toUpperCase}] - Call to $url returned a FORBIDDEN")
+        throw new ForbiddenException(s"Request was denied on path $url")
+      case NOT_FOUND =>
+        Logger.warn(s"[Http] - [${request.method.toUpperCase}] - Call to $url returned a NOT FOUND")
+        throw new NotFoundException(s"Resource NOT FOUND on path $url")
+      case CONFLICT  =>
+        Logger.warn(s"[Http] - [${request.method.toUpperCase}] - Call to $url returned a CONFLICT")
+        throw new ConflictException(s"Resource was in conflict on path $url")
+      case client()  =>
+        Logger.warn(s"[Http] - [${request.method.toUpperCase}] - Call to $url returned a ${wsResponse.statusText} (${wsResponse.status})")
+        throw new ClientErrorException(s"Response was ${wsResponse.statusText} (${wsResponse.status}) from $url")
+      case server()  =>
+        Logger.error(s"[Http] - [${request.method.toUpperCase}] - Call to $url returned a ${wsResponse.statusText} (${wsResponse.status})")
+        throw new ServerErrorException(s"Response was ${wsResponse.statusText} (${wsResponse.status}) from $url")
     }
   }
 
-  def processHttpResponseIntoType[T](wsResponse: WSResponse)(implicit request: Request[_], reads: Reads[T]): T = {
+  def processHttpResponseIntoType[T](url: String, wsResponse: WSResponse)(implicit request: Request[_], reads: Reads[T]): T = {
     wsResponse.status match {
       case success()        => DataSecurity.decryptIntoType[T](wsResponse.body) match {
         case Some(data)     => data
-        case None           => throw new HttpDecryptionException(s"Response body failed decryption from ${request.path} (response code ${wsResponse.status})")
+        case None           =>
+          Logger.error(s"[Http] - [decryption] - response body failed decryption")
+          throw new HttpDecryptionException(s"Response body failed decryption from $url (response code ${wsResponse.status})")
       }
-      case FORBIDDEN        => throw new ForbiddenException(s"Request was denied on path ${request.path}")
-      case NOT_FOUND        => throw new NotFoundException(s"Resource NOT FOUND on path ${request.path}")
-      case CONFLICT         => throw new ConflictException(s"Resource was in conflict on path ${request.path}")
-      case client()         => throw new ClientErrorException(s"Response was ${wsResponse.statusText} (${wsResponse.status}) from ${request.path}")
-      case server()         => throw new ServerErrorException(s"Response was ${wsResponse.statusText} (${wsResponse.status}) from ${request.path}")
+      case FORBIDDEN        =>
+        Logger.error(s"[Http] - [${request.method.toUpperCase}] - Call to $url returned a FORBIDDEN")
+        throw new ForbiddenException(s"Request was denied on path $url")
+      case NOT_FOUND        =>
+        Logger.warn(s"[Http] - [${request.method.toUpperCase}] - Call to $url returned a NOT FOUND")
+        throw new NotFoundException(s"Resource NOT FOUND on path $url")
+      case CONFLICT         =>
+        Logger.warn(s"[Http] - [${request.method.toUpperCase}] - Call to $url returned a CONFLICT")
+        throw new ConflictException(s"Resource was in conflict on path $url")
+      case client()         =>
+        Logger.warn(s"[Http] - [${request.method.toUpperCase}] - Call to $url returned a ${wsResponse.statusText} (${wsResponse.status})")
+        throw new ClientErrorException(s"Response was ${wsResponse.statusText} (${wsResponse.status}) from $url")
+      case server()         =>
+        Logger.error(s"[Http] - [${request.method.toUpperCase}] - Call to $url returned a ${wsResponse.statusText} (${wsResponse.status})")
+        throw new ServerErrorException(s"Response was ${wsResponse.statusText} (${wsResponse.status}) from $url")
     }
   }
 }

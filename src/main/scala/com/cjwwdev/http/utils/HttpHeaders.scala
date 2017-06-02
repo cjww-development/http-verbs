@@ -31,18 +31,14 @@ trait HttpHeaders extends BaseConfiguration {
   def sessionIdHeader(implicit request: Request[_]): (String, String) = {
     Try(request.session("sessionId")) match {
       case Success(sId) => "sessionId" -> sId
-      case Failure(_) =>
-        Logger.warn("[HttpHeaders] - [sessionIdHeader]: no session id found in header")
-        "sessionId" -> "INVALID_SESSION_ID"
+      case Failure(_)   => "sessionId" -> "INVALID_SESSION_ID"
     }
   }
 
   def contextIdHeader(implicit request: Request[_]): (String, String) = {
     Try(request.session("contextId")) match {
       case Success(cId) => "contextId" -> cId
-      case Failure(_) =>
-        Logger.warn("[HttpHeaders] - [contextIdHeader]: no context id found in header")
-        "contextId" -> "INVALID_CONTEXT_ID"
+      case Failure(_)   => "contextId" -> "INVALID_CONTEXT_ID"
     }
   }
 }
