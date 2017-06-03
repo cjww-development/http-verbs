@@ -1,11 +1,9 @@
 import com.typesafe.config.ConfigFactory
 import scala.util.{Try, Success, Failure}
 
-val btVersion: String = {
-  Try(ConfigFactory.load.getString("version")) match {
-    case Success(ver) => ver
-    case Failure(_) => "0.1.0"
-  }
+val btVersion: String = Try(ConfigFactory.load.getString("version")) match {
+  case Success(ver) => ver
+  case Failure(_) => "0.1.0"
 }
 
 name := "http-verbs"
@@ -14,9 +12,9 @@ scalaVersion := "2.11.11"
 organization := "com.cjww-dev.libs"
 
 val cjwwDep: Seq[ModuleID] = Seq(
-  "com.cjww-dev.libs" % "logging_2.11" % "0.6.0",
-  "com.cjww-dev.libs" % "bootstrapper_2.11" % "1.5.0",
-  "com.cjww-dev.libs" % "data-security_2.11" % "1.1.0"
+  "com.cjww-dev.libs" % "logging_2.11" % "0.7.0",
+  "com.cjww-dev.libs" % "bootstrapper_2.11" % "1.6.0",
+  "com.cjww-dev.libs" % "data-security_2.11" % "1.2.0"
 )
 
 val testDep: Seq[ModuleID] = Seq(
