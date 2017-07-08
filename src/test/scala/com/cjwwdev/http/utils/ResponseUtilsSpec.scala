@@ -28,7 +28,7 @@ import play.api.test.FakeRequest
 class ResponseUtilsSpec extends PlaySpec with MockitoSugar with GuiceOneAppPerSuite with MockResponse {
   class Setup {
     val testUtil = new ResponseUtils {}
-    val testEnc = DataSecurity.encryptString("testString").get
+    val testEnc = DataSecurity.encryptString("testString")
     val testUrl = "/test/url"
   }
 
@@ -97,20 +97,11 @@ class ResponseUtilsSpec extends PlaySpec with MockitoSugar with GuiceOneAppPerSu
       "the response code is in the success range and the body has been decrypted" in new Setup {
         implicit val request = FakeRequest("GET", "/fake/path")
         val input = TestModel("testString", 616)
-        val enc = DataSecurity.encryptType[TestModel](input).get
+        val enc = DataSecurity.encryptType[TestModel](input)
         val successResponse = mockResponse(enc, OK)
 
         val result = testUtil.processHttpResponseIntoType[TestModel](testUrl, successResponse)
         result mustBe input
-      }
-    }
-
-    "throw a HttpDecryptionException" when {
-      "the response code is in the success range but the body couldn't be decrypted" in new Setup {
-        implicit val request = FakeRequest("GET", "/fake/path")
-        val successResponse = mockResponse("INVALID_BODY", OK)
-
-        intercept[HttpDecryptionException](testUtil.processHttpResponseIntoType[TestModel](testUrl, successResponse))
       }
     }
 

@@ -31,5 +31,7 @@ trait MockResponse {
     override def status = code
     override def json = ???
     override def allHeaders = ???
+    override def headers = ???
+    override def bodyAsSource = ???
   }
 }
