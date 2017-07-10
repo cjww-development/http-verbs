@@ -16,8 +16,8 @@
 package com.cjwwdev.http.utils
 
 import com.cjwwdev.http.exceptions._
-import com.cjwwdev.logging.Logger
 import com.cjwwdev.security.encryption.DataSecurity
+import play.api.Logger
 import play.api.libs.json.Reads
 import play.api.libs.ws.WSResponse
 import play.api.http.Status._

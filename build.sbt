@@ -12,15 +12,14 @@ scalaVersion := "2.11.11"
 organization := "com.cjww-dev.libs"
 
 val cjwwDep: Seq[ModuleID] = Seq(
-  "com.cjww-dev.libs" % "logging_2.11" % "0.9.0",
-  "com.cjww-dev.libs" % "bootstrapper_2.11" % "1.8.0",
-  "com.typesafe.play" % "play_2.11" % "2.6.1",
-  "com.cjww-dev.libs" % "data-security_2.11" % "2.1.0"
+  "com.typesafe.play" % "play_2.11"                  % "2.5.15",
+  "com.cjww-dev.libs" % "data-security_2.11"         % "2.4.0",
+  "com.cjww-dev.libs" % "application-utilities_2.11" % "1.0.0"
 )
 
 val testDep: Seq[ModuleID] = Seq(
-  "org.scalatestplus.play" % "scalatestplus-play_2.11" % "3.1.0" % Test,
-  "org.mockito" % "mockito-core" % "2.8.47" % Test
+  "org.scalatestplus.play" % "scalatestplus-play_2.11" % "2.0.0" % Test,
+  "org.mockito"            % "mockito-core"            % "2.8.47" % Test
 )
 
 libraryDependencies ++= testDep

@@ -19,38 +19,28 @@ import com.cjwwdev.http.exceptions.{FirstNameNotFound, LastNameNotFound}
 import play.api.mvc.Request
 
 trait SessionUtils {
-  def getCookieId(implicit request: Request[_]): String = {
-    request.session.get("cookieId") match {
-      case Some(id) => id
-      case None     => "invalid-cookie"
-    }
+  def getCookieId(implicit request: Request[_]): String = request.session.get("cookieId") match {
+    case Some(id) => id
+    case None     => "invalid-cookie"
   }
 
-  def getContextId(implicit request: Request[_]): String = {
-    request.session.get("contextId") match {
-      case Some(id) => id
-      case None     => "invalid-context"
-    }
+  def getContextId(implicit request: Request[_]): String = request.session.get("contextId") match {
+    case Some(id) => id
+    case None     => "invalid-context"
   }
 
-  def getDeversityId(implicit request: Request[_]): String = {
-    request.session.get("devId") match {
-      case Some(id) => id
-      case None     => "invalid-context"
-    }
+  def getDeversityId(implicit request: Request[_]): String = request.session.get("devId") match {
+    case Some(id) => id
+    case None     => "invalid-context"
   }
 
-  def getFirstName(implicit request: Request[_]): String = {
-    request.session.get("firstName") match {
-      case Some(name) => name
-      case None       => throw new FirstNameNotFound("ERROR User not authenticated; no firstName present in request session")
-    }
+  def getFirstName(implicit request: Request[_]): String = request.session.get("firstName") match {
+    case Some(name) => name
+    case None       => throw new FirstNameNotFound("ERROR User not authenticated; no firstName present in request session")
   }
 
-  def getLastName(implicit request: Request[_]): String = {
-    request.session.get("lastName") match {
-      case Some(name) => name
-      case None       => throw new LastNameNotFound("ERROR User not authenticated; no lastName present in request session")
-    }
+  def getLastName(implicit request: Request[_]): String = request.session.get("lastName") match {
+    case Some(name) => name
+    case None       => throw new LastNameNotFound("ERROR User not authenticated; no lastName present in request session")
   }
 }
