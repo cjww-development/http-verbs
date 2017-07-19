@@ -53,7 +53,7 @@ trait ResponseUtils {
 
   def processHttpResponseIntoType[T](url: String, wsResponse: WSResponse)(implicit request: Request[_], reads: Reads[T]): T = {
     wsResponse.status match {
-      case success()        => DataSecurity.decryptIntoType[T](wsResponse.body)
+      case success()        => DataSecurity.decryptIntoType[T](wsResponse.body).get
       case FORBIDDEN        =>
         Logger.error(s"[Http] - [${request.method.toUpperCase}] - Call to $url returned a FORBIDDEN")
         throw new ForbiddenException(s"Request was denied on path $url")
