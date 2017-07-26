@@ -17,9 +17,10 @@ package com.cjwwdev.http.verbs
 
 import javax.inject.{Inject, Singleton}
 
-import com.cjwwdev.http.utils.{HttpHeaders, ResponseUtils}
+import com.cjwwdev.http.utils.HttpHeaders
 import com.cjwwdev.security.encryption.DataSecurity
-import play.api.libs.json.{OWrites, Reads}
+import play.api.Logger
+import play.api.libs.json.OWrites
 import play.api.libs.ws.{WSClient, WSResponse}
 import play.api.mvc.Request
 
@@ -27,16 +28,18 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
 @Singleton
-class Http @Inject()(wsClient: WSClient) extends HttpHeaders with ResponseUtils {
+class Http @Inject()(wsClient: WSClient) extends HttpHeaders {
   def HEAD(url: String)(implicit request: Request[_]): Future[WSResponse] = {
-    wsClient.url(url).withHeaders(appIdHeader, contentTypeHeader, sessionIdHeader, contextIdHeader).head map { resp =>
-      processHttpResponse(url, resp)
+    wsClient.url(url).withHeaders(appIdHeader, contentTypeHeader, sessionIdHeader).head map { resp =>
+      Logger.warn(s"[Http] - [${request.method.toUpperCase}] - Call to $url returned a ${resp.statusText} (${resp.status})")
+      resp
     }
   }
 
-  def GET[T](url: String)(implicit request: Request[_], reads: Reads[T]): Future[T] = {
+  def GET(url: String)(implicit request: Request[_]): Future[WSResponse] = {
     wsClient.url(url).withHeaders(appIdHeader, contentTypeHeader, sessionIdHeader, contextIdHeader).get map { resp =>
-      processHttpResponseIntoType(url, resp)
+      Logger.warn(s"[Http] - [${request.method.toUpperCase}] - Call to $url returned a ${resp.statusText} (${resp.status})")
+      resp
     }
   }
 
@@ -45,7 +48,10 @@ class Http @Inject()(wsClient: WSClient) extends HttpHeaders with ResponseUtils 
     wsClient.url(url)
       .withHeaders(appIdHeader, contentTypeHeader, sessionIdHeader, contextIdHeader)
       .withBody(body)
-      .post(body) map(resp => processHttpResponse(url, resp))
+      .post(body) map { resp =>
+        Logger.warn(s"[Http] - [${request.method.toUpperCase}] - Call to $url returned a ${resp.statusText} (${resp.status})")
+        resp
+      }
   }
 
   def PUT[T](url: String, data: T)(implicit request: Request[_], writes: OWrites[T]): Future[WSResponse] = {
@@ -53,7 +59,10 @@ class Http @Inject()(wsClient: WSClient) extends HttpHeaders with ResponseUtils 
     wsClient.url(url)
       .withHeaders(appIdHeader, contentTypeHeader, sessionIdHeader, contextIdHeader)
       .withBody(body)
-      .put(body) map(resp => processHttpResponse(url, resp))
+      .put(body) map { resp =>
+        Logger.warn(s"[Http] - [${request.method.toUpperCase}] - Call to $url returned a ${resp.statusText} (${resp.status})")
+        resp
+      }
   }
 
   def PATCH[T](url: String, data: T)(implicit request: Request[_], writes: OWrites[T]): Future[WSResponse] = {
@@ -61,11 +70,17 @@ class Http @Inject()(wsClient: WSClient) extends HttpHeaders with ResponseUtils 
     wsClient.url(url)
       .withHeaders(appIdHeader, contentTypeHeader, sessionIdHeader, contextIdHeader)
       .withBody(body)
-      .patch(body) map(resp => processHttpResponse(url, resp))
+      .patch(body) map { resp =>
+        Logger.warn(s"[Http] - [${request.method.toUpperCase}] - Call to $url returned a ${resp.statusText} (${resp.status})")
+        resp
+      }
   }
 
   def DELETE(url: String)(implicit request: Request[_]): Future[WSResponse] = {
     wsClient.url(url).withHeaders(appIdHeader, contentTypeHeader, sessionIdHeader, contextIdHeader)
-      .delete map(resp => processHttpResponse(url, resp))
+      .delete map { resp =>
+        Logger.warn(s"[Http] - [${request.method.toUpperCase}] - Call to $url returned a ${resp.statusText} (${resp.status})")
+        resp
+      }
   }
 }

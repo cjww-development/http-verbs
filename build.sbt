@@ -6,10 +6,10 @@ val btVersion: String = Try(ConfigFactory.load.getString("version")) match {
   case Failure(_) => "0.1.0"
 }
 
-name := "http-verbs"
-version := btVersion
-scalaVersion := "2.11.11"
-organization := "com.cjww-dev.libs"
+name          := "http-verbs"
+version       := btVersion
+scalaVersion  := "2.11.11"
+organization  := "com.cjww-dev.libs"
 
 val cjwwDep: Seq[ModuleID] = Seq(
   "com.typesafe.play" % "play_2.11"                  % "2.5.15",
@@ -18,7 +18,7 @@ val cjwwDep: Seq[ModuleID] = Seq(
 )
 
 val testDep: Seq[ModuleID] = Seq(
-  "org.scalatestplus.play" % "scalatestplus-play_2.11" % "2.0.0" % Test,
+  "org.scalatestplus.play" % "scalatestplus-play_2.11" % "2.0.0"  % Test,
   "org.mockito"            % "mockito-core"            % "2.8.47" % Test
 )
 
@@ -27,7 +27,7 @@ libraryDependencies ++= cjwwDep
 
 resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
 
-bintrayOrganization := Some("cjww-development")
-bintrayReleaseOnPublish in ThisBuild := true
-bintrayRepository := "releases"
-bintrayOmitLicense := true
+bintrayOrganization                   := Some("cjww-development")
+bintrayReleaseOnPublish in ThisBuild  := true
+bintrayRepository                     := "releases"
+bintrayOmitLicense                    := true

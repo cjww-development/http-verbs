@@ -29,11 +29,11 @@ trait HttpHeaders extends BaseConfiguration {
 
   def sessionIdHeader(implicit request: Request[_]): (String, String) = Try(request.session("sessionId")) match {
     case Success(sId) => "sessionId" -> sId
-    case Failure(_)   => "sessionId" -> "INVALID_SESSION_ID"
+    case Failure(_)   => "" -> ""
   }
 
   def contextIdHeader(implicit request: Request[_]): (String, String) = Try(request.session("contextId")) match {
     case Success(cId) => "contextId" -> cId
-    case Failure(_)   => "contextId" -> "INVALID_CONTEXT_ID"
+    case Failure(_)   => "" -> ""
   }
 }
