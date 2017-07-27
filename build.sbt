@@ -14,11 +14,11 @@ organization := "com.cjww-dev.libs"
 val cjwwDep: Seq[ModuleID] = Seq(
   "com.typesafe.play" % "play_2.11"                  % "2.5.15",
   "com.cjww-dev.libs" % "data-security_2.11"         % "2.5.0",
-  "com.cjww-dev.libs" % "application-utilities_2.11" % "1.1.0"
+  "com.cjww-dev.libs" % "application-utilities_2.11" % "1.2.0"
 )
 
 val testDep: Seq[ModuleID] = Seq(
-  "org.scalatestplus.play" % "scalatestplus-play_2.11" % "2.0.0" % Test,
+  "org.scalatestplus.play" % "scalatestplus-play_2.11" % "2.0.0"  % Test,
   "org.mockito"            % "mockito-core"            % "2.8.47" % Test
 )
 
