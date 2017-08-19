@@ -16,15 +16,19 @@
 
 package com.cjwwdev.http.utils
 
-import com.cjwwdev.config.BaseConfiguration
+import com.typesafe.config.ConfigFactory
 import play.api.http.HeaderNames.CONTENT_TYPE
 import play.api.http.MimeTypes.TEXT
 import play.api.mvc.Request
 
 import scala.util.{Failure, Success, Try}
 
-trait HttpHeaders extends BaseConfiguration {
-  def appIdHeader: (String, String) = "appID" -> APPLICATION_ID
+trait HttpHeaders {
+  private val config = ConfigFactory.load
+  private val appName = config.getString("appName")
+  private val APPLICATION_ID = config.getString(s"microservice.external-services.$appName.application-id")
+
+  def appIdHeader: (String, String)       = "appID"      -> APPLICATION_ID
   def contentTypeHeader: (String, String) = CONTENT_TYPE -> TEXT
 
   def sessionIdHeader(implicit request: Request[_]): (String, String) = Try(request.session("sessionId")) match {

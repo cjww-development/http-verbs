@@ -31,7 +31,7 @@ trait SessionUtils {
 
   def getDeversityId(implicit request: Request[_]): String = request.session.get("devId") match {
     case Some(id) => id
-    case None     => "invalid-context"
+    case None     => "invalid-dev-id"
   }
 
   def getFirstName(implicit request: Request[_]): String = request.session.get("firstName") match {
