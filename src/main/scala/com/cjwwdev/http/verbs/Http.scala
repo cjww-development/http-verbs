@@ -17,6 +17,7 @@ package com.cjwwdev.http.verbs
 
 import javax.inject.{Inject, Singleton}
 
+import com.cjwwdev.config.ConfigurationLoader
 import com.cjwwdev.http.utils.{HttpHeaders, ResponseUtils}
 import com.cjwwdev.security.encryption.DataSecurity
 import play.api.libs.json.{OWrites, Reads}
@@ -27,7 +28,9 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
 @Singleton
-class Http @Inject()(wsClient: WSClient) extends HttpHeaders with ResponseUtils {
+class Http @Inject()(wsClient: WSClient,
+                     val configLoader: ConfigurationLoader) extends HttpHeaders with ResponseUtils {
+
   def HEAD(url: String)(implicit request: Request[_]): Future[WSResponse] = {
     wsClient.url(url).withHeaders(appIdHeader, contentTypeHeader, sessionIdHeader, contextIdHeader).head map { resp =>
       processHttpResponse(url, resp)

@@ -13,8 +13,8 @@ organization := "com.cjww-dev.libs"
 
 val cjwwDep: Seq[ModuleID] = Seq(
   "com.typesafe.play" % "play_2.11"                  % "2.5.16",
-  "com.cjww-dev.libs" % "data-security_2.11"         % "2.6.1",
-  "com.cjww-dev.libs" % "application-utilities_2.11" % "2.1.0"
+  "com.cjww-dev.libs" % "data-security_2.11"         % "2.7.0",
+  "com.cjww-dev.libs" % "application-utilities_2.11" % "2.2.0"
 )
 
 val testDep: Seq[ModuleID] = Seq(

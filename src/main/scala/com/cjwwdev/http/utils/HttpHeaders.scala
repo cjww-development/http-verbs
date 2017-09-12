@@ -16,7 +16,7 @@
 
 package com.cjwwdev.http.utils
 
-import com.typesafe.config.ConfigFactory
+import com.cjwwdev.config.ConfigurationLoader
 import play.api.http.HeaderNames.CONTENT_TYPE
 import play.api.http.MimeTypes.TEXT
 import play.api.mvc.Request
@@ -24,11 +24,12 @@ import play.api.mvc.Request
 import scala.util.{Failure, Success, Try}
 
 trait HttpHeaders {
-  private val config = ConfigFactory.load
-  private val appName = config.getString("appName")
-  private val APPLICATION_ID = config.getString(s"microservice.external-services.$appName.application-id")
+  val configLoader: ConfigurationLoader
 
-  def appIdHeader: (String, String)       = "appID"      -> APPLICATION_ID
+  private val appName = configLoader.loadedConfig.underlying.getString("appName")
+  private val APPLICATION_ID = configLoader.loadedConfig.underlying.getString(s"microservice.external-services.$appName.application-id")
+
+  def appIdHeader: (String, String)       = "appId"      -> APPLICATION_ID
   def contentTypeHeader: (String, String) = CONTENT_TYPE -> TEXT
 
   def sessionIdHeader(implicit request: Request[_]): (String, String) = Try(request.session("sessionId")) match {

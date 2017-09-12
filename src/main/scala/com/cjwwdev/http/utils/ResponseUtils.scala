@@ -24,11 +24,13 @@ import play.api.http.Status._
 import play.api.mvc.Request
 
 trait ResponseUtils {
-  class Contains(r : Range) { def unapply(i : Int) : Boolean = r contains i }
+  private class Contains(r : Range) {
+    def unapply(i : Int) : Boolean = r contains i
+  }
 
-  private val success       = new Contains(200 to 299)
-  private val client        = new Contains(400 to 499)
-  private val server        = new Contains(500 to 599)
+  private val success = new Contains(200 to 299)
+  private val client  = new Contains(400 to 499)
+  private val server  = new Contains(500 to 599)
 
   def processHttpResponse(url: String, wsResponse: WSResponse)(implicit request: Request[_]): WSResponse = {
     wsResponse.status match {
@@ -44,10 +46,10 @@ trait ResponseUtils {
         throw new ConflictException(s"Resource was in conflict on path $url")
       case client()  =>
         Logger.warn(s"[Http] - [${request.method.toUpperCase}] - Call to $url returned a ${wsResponse.statusText} (${wsResponse.status})")
-        throw new ClientErrorException(s"Response was ${wsResponse.statusText} (${wsResponse.status}) from $url")
+        throw new ClientErrorException(s"Response was ${wsResponse.statusText} (${wsResponse.status}) from $url", wsResponse.status)
       case server()  =>
         Logger.error(s"[Http] - [${request.method.toUpperCase}] - Call to $url returned a ${wsResponse.statusText} (${wsResponse.status})")
-        throw new ServerErrorException(s"Response was ${wsResponse.statusText} (${wsResponse.status}) from $url")
+        throw new ServerErrorException(s"Response was ${wsResponse.statusText} (${wsResponse.status}) from $url", wsResponse.status)
     }
   }
 
@@ -65,10 +67,10 @@ trait ResponseUtils {
         throw new ConflictException(s"Resource was in conflict on path $url")
       case client()         =>
         Logger.warn(s"[Http] - [${request.method.toUpperCase}] - Call to $url returned a ${wsResponse.statusText} (${wsResponse.status})")
-        throw new ClientErrorException(s"Response was ${wsResponse.statusText} (${wsResponse.status}) from $url")
+        throw new ClientErrorException(s"Response was ${wsResponse.statusText} (${wsResponse.status}) from $url", wsResponse.status)
       case server()         =>
         Logger.error(s"[Http] - [${request.method.toUpperCase}] - Call to $url returned a ${wsResponse.statusText} (${wsResponse.status})")
-        throw new ServerErrorException(s"Response was ${wsResponse.statusText} (${wsResponse.status}) from $url")
+        throw new ServerErrorException(s"Response was ${wsResponse.statusText} (${wsResponse.status}) from $url", wsResponse.status)
     }
   }
 }

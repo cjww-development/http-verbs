@@ -28,6 +28,14 @@ class ForbiddenException(message: String) extends HttpException(message)
 class NotFoundException(message: String) extends HttpException(message)
 class ConflictException(message: String) extends HttpException(message)
 
-class ClientErrorException(message: String) extends HttpException(message)
-class ServerErrorException(message: String) extends HttpException(message)
-class HttpDecryptionException(message: String) extends HttpException(message)
+class ClientErrorException(message: String, statusCode: Int) extends HttpException(message) {
+  def getStatusCode = statusCode
+}
+
+class ServerErrorException(message: String, statusCode: Int) extends HttpException(message) {
+  def getStatusCode = statusCode
+}
+
+class HttpDecryptionException(message: String, statusCode: Int) extends HttpException(message) {
+  def getStatusCode = statusCode
+}
