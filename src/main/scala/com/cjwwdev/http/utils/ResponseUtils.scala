@@ -17,7 +17,7 @@ package com.cjwwdev.http.utils
 
 import com.cjwwdev.http.exceptions._
 import com.cjwwdev.security.encryption.DataSecurity
-import play.api.Logger
+import org.slf4j.{Logger, LoggerFactory}
 import play.api.libs.json.Reads
 import play.api.libs.ws.WSResponse
 import play.api.http.Status._
@@ -32,23 +32,25 @@ trait ResponseUtils {
   private val client  = new Contains(400 to 499)
   private val server  = new Contains(500 to 599)
 
+  private val logger: Logger = LoggerFactory.getLogger(getClass)
+
   def processHttpResponse(url: String, wsResponse: WSResponse)(implicit request: Request[_]): WSResponse = {
     wsResponse.status match {
       case success() => wsResponse
       case FORBIDDEN =>
-        Logger.error(s"[Http] - [${request.method.toUpperCase}] - Call to $url returned a FORBIDDEN")
+        logger.error(s"[${request.method.toUpperCase}] - Call to $url returned a FORBIDDEN")
         throw new ForbiddenException(s"Request was denied on path $url")
       case NOT_FOUND =>
-        Logger.warn(s"[Http] - [${request.method.toUpperCase}] - Call to $url returned a NOT FOUND")
+        logger.warn(s"[${request.method.toUpperCase}] - Call to $url returned a NOT FOUND")
         throw new NotFoundException(s"Resource NOT FOUND on path $url")
       case CONFLICT  =>
-        Logger.warn(s"[Http] - [${request.method.toUpperCase}] - Call to $url returned a CONFLICT")
+        logger.warn(s"[${request.method.toUpperCase}] - Call to $url returned a CONFLICT")
         throw new ConflictException(s"Resource was in conflict on path $url")
       case client()  =>
-        Logger.warn(s"[Http] - [${request.method.toUpperCase}] - Call to $url returned a ${wsResponse.statusText} (${wsResponse.status})")
+        logger.warn(s"[${request.method.toUpperCase}] - Call to $url returned a ${wsResponse.statusText} (${wsResponse.status})")
         throw new ClientErrorException(s"Response was ${wsResponse.statusText} (${wsResponse.status}) from $url", wsResponse.status)
       case server()  =>
-        Logger.error(s"[Http] - [${request.method.toUpperCase}] - Call to $url returned a ${wsResponse.statusText} (${wsResponse.status})")
+        logger.error(s"[${request.method.toUpperCase}] - Call to $url returned a ${wsResponse.statusText} (${wsResponse.status})")
         throw new ServerErrorException(s"Response was ${wsResponse.statusText} (${wsResponse.status}) from $url", wsResponse.status)
     }
   }
@@ -57,19 +59,19 @@ trait ResponseUtils {
     wsResponse.status match {
       case success()        => DataSecurity.decryptIntoType[T](wsResponse.body).get
       case FORBIDDEN        =>
-        Logger.error(s"[Http] - [${request.method.toUpperCase}] - Call to $url returned a FORBIDDEN")
+        logger.error(s"[${request.method.toUpperCase}] - Call to $url returned a FORBIDDEN")
         throw new ForbiddenException(s"Request was denied on path $url")
       case NOT_FOUND        =>
-        Logger.warn(s"[Http] - [${request.method.toUpperCase}] - Call to $url returned a NOT FOUND")
+        logger.warn(s"[${request.method.toUpperCase}] - Call to $url returned a NOT FOUND")
         throw new NotFoundException(s"Resource NOT FOUND on path $url")
       case CONFLICT         =>
-        Logger.warn(s"[Http] - [${request.method.toUpperCase}] - Call to $url returned a CONFLICT")
+        logger.warn(s"[${request.method.toUpperCase}] - Call to $url returned a CONFLICT")
         throw new ConflictException(s"Resource was in conflict on path $url")
       case client()         =>
-        Logger.warn(s"[Http] - [${request.method.toUpperCase}] - Call to $url returned a ${wsResponse.statusText} (${wsResponse.status})")
+        logger.warn(s"[${request.method.toUpperCase}] - Call to $url returned a ${wsResponse.statusText} (${wsResponse.status})")
         throw new ClientErrorException(s"Response was ${wsResponse.statusText} (${wsResponse.status}) from $url", wsResponse.status)
       case server()         =>
-        Logger.error(s"[Http] - [${request.method.toUpperCase}] - Call to $url returned a ${wsResponse.statusText} (${wsResponse.status})")
+        logger.error(s"[${request.method.toUpperCase}] - Call to $url returned a ${wsResponse.statusText} (${wsResponse.status})")
         throw new ServerErrorException(s"Response was ${wsResponse.statusText} (${wsResponse.status}) from $url", wsResponse.status)
     }
   }

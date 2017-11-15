@@ -28,19 +28,14 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
 @Singleton
-class Http @Inject()(wsClient: WSClient,
-                     val configLoader: ConfigurationLoader) extends HttpHeaders with ResponseUtils {
+class Http @Inject()(wsClient: WSClient, val configLoader: ConfigurationLoader) extends HttpHeaders with ResponseUtils {
 
   def HEAD(url: String)(implicit request: Request[_]): Future[WSResponse] = {
-    wsClient.url(url).withHeaders(appIdHeader, contentTypeHeader, sessionIdHeader, contextIdHeader).head map { resp =>
-      processHttpResponse(url, resp)
-    }
+    wsClient.url(url).withHeaders(appIdHeader, contentTypeHeader, sessionIdHeader, contextIdHeader).head map(processHttpResponse(url, _))
   }
 
   def GET[T](url: String)(implicit request: Request[_], reads: Reads[T]): Future[T] = {
-    wsClient.url(url).withHeaders(appIdHeader, contentTypeHeader, sessionIdHeader, contextIdHeader).get map { resp =>
-      processHttpResponseIntoType(url, resp)
-    }
+    wsClient.url(url).withHeaders(appIdHeader, contentTypeHeader, sessionIdHeader, contextIdHeader).get map(processHttpResponseIntoType(url, _))
   }
 
   def POST[T](url: String, data: T)(implicit request: Request[_], writes: OWrites[T]): Future[WSResponse] = {
@@ -48,7 +43,7 @@ class Http @Inject()(wsClient: WSClient,
     wsClient.url(url)
       .withHeaders(appIdHeader, contentTypeHeader, sessionIdHeader, contextIdHeader)
       .withBody(body)
-      .post(body) map(resp => processHttpResponse(url, resp))
+      .post(body) map(processHttpResponse(url, _))
   }
 
   def PUT[T](url: String, data: T)(implicit request: Request[_], writes: OWrites[T]): Future[WSResponse] = {
@@ -56,7 +51,7 @@ class Http @Inject()(wsClient: WSClient,
     wsClient.url(url)
       .withHeaders(appIdHeader, contentTypeHeader, sessionIdHeader, contextIdHeader)
       .withBody(body)
-      .put(body) map(resp => processHttpResponse(url, resp))
+      .put(body) map(processHttpResponse(url, _))
   }
 
   def PATCH[T](url: String, data: T)(implicit request: Request[_], writes: OWrites[T]): Future[WSResponse] = {
@@ -64,11 +59,11 @@ class Http @Inject()(wsClient: WSClient,
     wsClient.url(url)
       .withHeaders(appIdHeader, contentTypeHeader, sessionIdHeader, contextIdHeader)
       .withBody(body)
-      .patch(body) map(resp => processHttpResponse(url, resp))
+      .patch(body) map(processHttpResponse(url, _))
   }
 
   def DELETE(url: String)(implicit request: Request[_]): Future[WSResponse] = {
     wsClient.url(url).withHeaders(appIdHeader, contentTypeHeader, sessionIdHeader, contextIdHeader)
-      .delete map(resp => processHttpResponse(url, resp))
+      .delete map(processHttpResponse(url, _))
   }
 }

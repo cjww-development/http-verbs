@@ -32,9 +32,9 @@ trait HttpHeaders {
   def appIdHeader: (String, String)       = "appId"      -> APPLICATION_ID
   def contentTypeHeader: (String, String) = CONTENT_TYPE -> TEXT
 
-  def sessionIdHeader(implicit request: Request[_]): (String, String) = Try(request.session("sessionId")) match {
-    case Success(sId) => "sessionId" -> sId
-    case Failure(_)   => "sessionId" -> "INVALID_SESSION_ID"
+  def sessionIdHeader(implicit request: Request[_]): (String, String) = Try(request.session("cookieId")) match {
+    case Success(sId) => "cookieId" -> sId
+    case Failure(_)   => "cookieId" -> "INVALID_SESSION_ID"
   }
 
   def contextIdHeader(implicit request: Request[_]): (String, String) = Try(request.session("contextId")) match {
