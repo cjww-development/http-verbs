@@ -26,19 +26,13 @@ import scala.util.{Failure, Success, Try}
 trait HttpHeaders {
   val configLoader: ConfigurationLoader
 
-  private val appName = configLoader.loadedConfig.underlying.getString("appName")
+  private val appName        = configLoader.loadedConfig.underlying.getString("appName")
   private val APPLICATION_ID = configLoader.loadedConfig.underlying.getString(s"microservice.external-services.$appName.application-id")
 
   def appIdHeader: (String, String)       = "appId"      -> APPLICATION_ID
   def contentTypeHeader: (String, String) = CONTENT_TYPE -> TEXT
 
-  def sessionIdHeader(implicit request: Request[_]): (String, String) = Try(request.session("cookieId")) match {
-    case Success(sId) => "cookieId" -> sId
-    case Failure(_)   => "cookieId" -> "INVALID_SESSION_ID"
-  }
+  def sessionIdHeader(implicit request: Request[_]): (String, String) = request.session.get("cookieId").fold("cookieId" -> "")("cookieId" -> _)
 
-  def contextIdHeader(implicit request: Request[_]): (String, String) = Try(request.session("contextId")) match {
-    case Success(cId) => "contextId" -> cId
-    case Failure(_)   => "contextId" -> "INVALID_CONTEXT_ID"
-  }
+  def contextIdHeader(implicit request: Request[_]): (String, String) = request.session.get("contextId").fold("contextId" -> "")("contextId" -> _)
 }
