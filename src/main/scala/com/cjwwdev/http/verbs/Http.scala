@@ -13,9 +13,10 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 package com.cjwwdev.http.verbs
 
-import javax.inject.{Inject, Singleton}
+import javax.inject.Inject
 
 import com.cjwwdev.config.ConfigurationLoader
 import com.cjwwdev.http.utils.{HttpHeaders, ResponseUtils}
@@ -24,24 +25,27 @@ import play.api.libs.json.{OWrites, Reads}
 import play.api.libs.ws.{WSClient, WSResponse}
 import play.api.mvc.Request
 
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
-@Singleton
-class Http @Inject()(wsClient: WSClient, val configLoader: ConfigurationLoader) extends HttpHeaders with ResponseUtils {
+class HttpImpl @Inject()(val wsClient: WSClient, val configLoader: ConfigurationLoader) extends Http
+
+trait Http extends HttpHeaders with ResponseUtils {
+  val wsClient: WSClient
+  val configLoader: ConfigurationLoader
 
   def HEAD(url: String)(implicit request: Request[_]): Future[WSResponse] = {
-    wsClient.url(url).withHeaders(appIdHeader, contentTypeHeader, sessionIdHeader, contextIdHeader).head map(processHttpResponse(url, _))
+    wsClient.url(url).withHeaders(appIdHeader, contentTypeHeader, sessionIdHeader).head map(processHttpResponse(url, _))
   }
 
   def GET[T](url: String)(implicit request: Request[_], reads: Reads[T]): Future[T] = {
-    wsClient.url(url).withHeaders(appIdHeader, contentTypeHeader, sessionIdHeader, contextIdHeader).get map(processHttpResponseIntoType(url, _))
+    wsClient.url(url).withHeaders(appIdHeader, contentTypeHeader, sessionIdHeader).get map(processHttpResponseIntoType(url, _))
   }
 
   def POST[T](url: String, data: T)(implicit request: Request[_], writes: OWrites[T]): Future[WSResponse] = {
     val body = DataSecurity.encryptType[T](data)
     wsClient.url(url)
-      .withHeaders(appIdHeader, contentTypeHeader, sessionIdHeader, contextIdHeader)
+      .withHeaders(appIdHeader, contentTypeHeader, sessionIdHeader)
       .withBody(body)
       .post(body) map(processHttpResponse(url, _))
   }
@@ -49,7 +53,7 @@ class Http @Inject()(wsClient: WSClient, val configLoader: ConfigurationLoader) 
   def PUT[T](url: String, data: T)(implicit request: Request[_], writes: OWrites[T]): Future[WSResponse] = {
     val body = DataSecurity.encryptType[T](data)
     wsClient.url(url)
-      .withHeaders(appIdHeader, contentTypeHeader, sessionIdHeader, contextIdHeader)
+      .withHeaders(appIdHeader, contentTypeHeader, sessionIdHeader)
       .withBody(body)
       .put(body) map(processHttpResponse(url, _))
   }
@@ -57,13 +61,13 @@ class Http @Inject()(wsClient: WSClient, val configLoader: ConfigurationLoader) 
   def PATCH[T](url: String, data: T)(implicit request: Request[_], writes: OWrites[T]): Future[WSResponse] = {
     val body = DataSecurity.encryptType[T](data)
     wsClient.url(url)
-      .withHeaders(appIdHeader, contentTypeHeader, sessionIdHeader, contextIdHeader)
+      .withHeaders(appIdHeader, contentTypeHeader, sessionIdHeader)
       .withBody(body)
       .patch(body) map(processHttpResponse(url, _))
   }
 
   def DELETE(url: String)(implicit request: Request[_]): Future[WSResponse] = {
-    wsClient.url(url).withHeaders(appIdHeader, contentTypeHeader, sessionIdHeader, contextIdHeader)
+    wsClient.url(url).withHeaders(appIdHeader, contentTypeHeader, sessionIdHeader)
       .delete map(processHttpResponse(url, _))
   }
 }
