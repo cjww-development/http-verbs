@@ -23,16 +23,15 @@ import play.api.mvc.Request
 
 import scala.util.{Failure, Success, Try}
 
-trait HttpHeaders {
-  val configLoader: ConfigurationLoader
+trait HttpHeaders extends ConfigurationLoader {
 
-  private val appName        = configLoader.loadedConfig.getString("appName")
-  private val APPLICATION_ID = configLoader.loadedConfig.getString(s"microservice.external-services.$appName.application-id")
+  private val appName        = loadedConfig.getString("appName")
+  private val APPLICATION_ID = loadedConfig.getString(s"microservice.external-services.$appName.application-id")
 
   def appIdHeader: (String, String)       = "appId"      -> APPLICATION_ID
   def contentTypeHeader: (String, String) = CONTENT_TYPE -> TEXT
 
-  def sessionIdHeader(implicit request: Request[_]): (String, String) = request.session.get("cookieId").fold("cookieId" -> "")("cookieId" -> _)
+  def sessionIdHeader(implicit request: Request[_]): (String, String) = "cookieId" -> request.session.data.getOrElse("cookieId", "")
 
-  def contextIdHeader(implicit request: Request[_]): (String, String) = request.session.get("contextId").fold("contextId" -> "")("contextId" -> _)
+  def contextIdHeader(implicit request: Request[_]): (String, String) = "contextId" -> request.session.data.getOrElse("contextId", "")
 }
