@@ -26,8 +26,8 @@ import scala.util.{Failure, Success, Try}
 trait HttpHeaders {
   val configLoader: ConfigurationLoader
 
-  private val appName        = configLoader.loadedConfig.underlying.getString("appName")
-  private val APPLICATION_ID = configLoader.loadedConfig.underlying.getString(s"microservice.external-services.$appName.application-id")
+  private val appName        = configLoader.loadedConfig.getString("appName")
+  private val APPLICATION_ID = configLoader.loadedConfig.getString(s"microservice.external-services.$appName.application-id")
 
   def appIdHeader: (String, String)       = "appId"      -> APPLICATION_ID
   def contentTypeHeader: (String, String) = CONTENT_TYPE -> TEXT

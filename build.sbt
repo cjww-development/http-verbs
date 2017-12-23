@@ -10,8 +10,8 @@ val btVersion: String = Try(ConfigFactory.load.getString("version")) match {
 
 val dependencies: Seq[ModuleID] = Seq(
   "com.typesafe.play" % "play_2.11"                  % "2.5.16",
-  "com.cjww-dev.libs" % "data-security_2.11"         % "2.10.0",
-  "com.cjww-dev.libs" % "application-utilities_2.11" % "2.8.0"
+  "com.cjww-dev.libs" % "data-security_2.11"         % "2.11.0",
+  "com.cjww-dev.libs" % "application-utilities_2.11" % "2.10.0"
 )
 
 val testDependencies: Seq[ModuleID] = Seq(
@@ -24,7 +24,10 @@ lazy val library = Project(libraryName, file("."))
     version                              :=  btVersion,
     scalaVersion                         :=  "2.11.12",
     organization                         :=  "com.cjww-dev.libs",
-    resolvers                            +=  "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/",
+    resolvers                            ++= Seq(
+      "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/",
+      "cjww-dev" at "http://dl.bintray.com/cjww-development/releases"
+    ),
     libraryDependencies                  ++= dependencies ++ testDependencies,
     bintrayOrganization                  :=  Some("cjww-development"),
     bintrayReleaseOnPublish in ThisBuild :=  true,
