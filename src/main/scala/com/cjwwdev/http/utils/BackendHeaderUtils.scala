@@ -19,5 +19,5 @@ package com.cjwwdev.http.utils
 import play.api.mvc.Request
 
 trait BackendHeaderUtils {
-  def getSessionId(implicit request: Request[_]): String = request.headers("sessionId")
+  def getSessionId(implicit request: Request[_]): String = request.headers("cookieId")
 }
