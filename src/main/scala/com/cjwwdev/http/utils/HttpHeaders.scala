@@ -23,10 +23,11 @@ import play.api.mvc.Request
 
 import scala.util.{Failure, Success, Try}
 
-trait HttpHeaders extends ConfigurationLoader {
+trait HttpHeaders {
+  val configurationLoader: ConfigurationLoader
 
-  private val appName        = loadedConfig.getString("appName")
-  private val APPLICATION_ID = loadedConfig.getString(s"microservice.external-services.$appName.application-id")
+  private val appName        = configurationLoader.loadedConfig.underlying.getString("appName")
+  private val APPLICATION_ID = configurationLoader.loadedConfig.underlying.getString(s"microservice.external-services.$appName.application-id")
 
   def appIdHeader: (String, String)       = "appId"      -> APPLICATION_ID
   def contentTypeHeader: (String, String) = CONTENT_TYPE -> TEXT

@@ -18,6 +18,7 @@ package com.cjwwdev.http.verbs
 
 import javax.inject.Inject
 
+import com.cjwwdev.config.ConfigurationLoader
 import com.cjwwdev.http.utils.{HttpHeaders, ResponseUtils}
 import com.cjwwdev.security.encryption.DataSecurity
 import play.api.libs.json.{OWrites, Reads}
@@ -27,7 +28,8 @@ import play.api.mvc.Request
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class HttpImpl @Inject()(val wsClient: WSClient) extends Http
+class HttpImpl @Inject()(val wsClient: WSClient,
+                         val configurationLoader: ConfigurationLoader) extends Http
 
 trait Http extends HttpHeaders with ResponseUtils {
   val wsClient: WSClient
