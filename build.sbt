@@ -10,14 +10,16 @@ val btVersion: String = Try(ConfigFactory.load.getString("version")) match {
 
 val dependencies: Seq[ModuleID] = Seq(
   "com.typesafe.play" % "play_2.11"                  % "2.5.16",
-  "com.cjww-dev.libs" % "data-security_2.11"         % "2.11.0",
-  "com.cjww-dev.libs" % "application-utilities_2.11" % "2.11.0"
+  "com.cjww-dev.libs" % "data-security_2.11"         % "2.12.0",
+  "com.cjww-dev.libs" % "application-utilities_2.11" % "2.14.0"
 )
 
 val testDependencies: Seq[ModuleID] = Seq(
   "org.scalatestplus.play" % "scalatestplus-play_2.11" % "2.0.1"  % Test,
   "org.mockito"            % "mockito-core"            % "2.12.0" % Test
 )
+
+val configKeyBase = "microservice.data-security"
 
 lazy val library = Project(libraryName, file("."))
   .settings(
@@ -26,11 +28,18 @@ lazy val library = Project(libraryName, file("."))
     organization                         :=  "com.cjww-dev.libs",
     resolvers                            ++= Seq(
       "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/",
-      "cjww-dev" at "http://dl.bintray.com/cjww-development/releases"
+      "cjww-dev"            at "http://dl.bintray.com/cjww-development/releases"
     ),
     libraryDependencies                  ++= dependencies ++ testDependencies,
     bintrayOrganization                  :=  Some("cjww-development"),
     bintrayReleaseOnPublish in ThisBuild :=  true,
     bintrayRepository                    :=  "releases",
-    bintrayOmitLicense                   :=  true
+    bintrayOmitLicense                   :=  true,
+    fork                    in Test      :=  true,
+    javaOptions             in Test      :=  Seq(
+      s"-D$configKeyBase.key=testKey",
+      s"-D$configKeyBase.salt=testSalt",
+      s"-DappName=testAppName",
+      s"-Dmicroservice.external-services.testAppName.application-id"
+    )
   )

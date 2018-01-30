@@ -14,13 +14,24 @@
  *  limitations under the License.
  */
 
-package com.cjwwdev.http.modules
+package com.cjwwdev.http.verbs
 
-import com.cjwwdev.http.verbs.{Http, HttpImpl}
-import com.google.inject.AbstractModule
+import com.cjwwdev.http.headers.HttpHeaders
+import play.api.libs.ws.{WSClient, WSResponse}
+import play.api.mvc.Request
 
-class HttpBindingModule extends AbstractModule {
-  override def configure(): Unit = {
-    bind(classOf[Http]).to(classOf[HttpImpl]).asEagerSingleton()
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
+
+trait HttpDelete {
+  self: HttpHeaders =>
+
+  val wsClient: WSClient
+
+  def DELETE(url: String)(implicit request: Request[_]): Future[WSResponse] = {
+    wsClient
+      .url(url)
+      .withHeaders(initialiseHeaderPackage)
+      .delete map(EvaluateResponse(url, "Delete", _))
   }
 }

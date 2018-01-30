@@ -14,13 +14,10 @@
  *  limitations under the License.
  */
 
-package com.cjwwdev.http.modules
+package com.cjwwdev.http.headers
 
-import com.cjwwdev.http.verbs.{Http, HttpImpl}
-import com.google.inject.AbstractModule
+import play.api.mvc.Request
 
-class HttpBindingModule extends AbstractModule {
-  override def configure(): Unit = {
-    bind(classOf[Http]).to(classOf[HttpImpl]).asEagerSingleton()
-  }
+trait BackendHeaderUtils {
+  def getSessionId(implicit request: Request[_]): String = request.headers("cookieId")
 }

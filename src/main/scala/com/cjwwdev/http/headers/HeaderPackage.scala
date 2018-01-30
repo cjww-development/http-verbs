@@ -14,13 +14,13 @@
  *  limitations under the License.
  */
 
-package com.cjwwdev.http.modules
+package com.cjwwdev.http.headers
 
-import com.cjwwdev.http.verbs.{Http, HttpImpl}
-import com.google.inject.AbstractModule
+import play.api.libs.json.{Json, OFormat}
 
-class HttpBindingModule extends AbstractModule {
-  override def configure(): Unit = {
-    bind(classOf[Http]).to(classOf[HttpImpl]).asEagerSingleton()
-  }
+case class HeaderPackage(appId: String,
+                         cookieId: String)
+
+object HeaderPackage {
+  implicit val format: OFormat[HeaderPackage] = Json.format[HeaderPackage]
 }
