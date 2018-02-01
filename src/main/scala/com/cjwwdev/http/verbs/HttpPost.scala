@@ -33,14 +33,14 @@ trait HttpPost extends ImplicitHandlers {
   def POST[T](url: String, data: T)(implicit request: Request[_], format: OFormat[T]): Future[WSResponse] = {
     wsClient
       .url(url)
-      .withHeaders(initialiseHeaderPackage)
+      .withHeaders(initialiseHeaderPackage, contentTypeHeader)
       .post(data.encryptType) map(EvaluateResponse(url, "Post", _))
   }
 
   def POSTString(url: String, data: String)(implicit request: Request[_]): Future[WSResponse] = {
     wsClient
       .url(url)
-      .withHeaders(initialiseHeaderPackage)
+      .withHeaders(initialiseHeaderPackage, contentTypeHeader)
       .post(data.encrypt) map(EvaluateResponse(url, "PostString", _))
   }
 }

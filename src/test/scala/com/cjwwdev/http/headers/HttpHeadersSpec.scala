@@ -21,8 +21,6 @@ import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.test.FakeRequest
 
-
-
 class HttpHeadersSpec extends PlaySpec with GuiceOneAppPerSuite {
   val testHttpHeaders = new HttpHeaders {
     override lazy val appName        = "testAppName"

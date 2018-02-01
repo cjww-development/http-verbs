@@ -31,7 +31,7 @@ trait HttpDelete {
   def DELETE(url: String)(implicit request: Request[_]): Future[WSResponse] = {
     wsClient
       .url(url)
-      .withHeaders(initialiseHeaderPackage)
+      .withHeaders(initialiseHeaderPackage, contentTypeHeader)
       .delete map(EvaluateResponse(url, "Delete", _))
   }
 }

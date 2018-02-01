@@ -31,7 +31,7 @@ trait HttpGet {
   def GET(url: String)(implicit request: Request[_]): Future[WSResponse] = {
     wsClient
       .url(url)
-      .withHeaders(initialiseHeaderPackage)
+      .withHeaders(initialiseHeaderPackage, contentTypeHeader)
       .get map(EvaluateResponse(url, "Get", _))
   }
 }

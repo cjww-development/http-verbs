@@ -31,7 +31,7 @@ trait HttpHead {
   def HEAD(url: String)(implicit request: Request[_]): Future[WSResponse] = {
     wsClient
       .url(url)
-      .withHeaders(initialiseHeaderPackage)
+      .withHeaders(initialiseHeaderPackage, contentTypeHeader)
       .head map(EvaluateResponse(url, "Head", _))
   }
 }
