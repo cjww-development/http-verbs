@@ -1,3 +1,19 @@
+/*
+ * Copyright 2018 CJWW Development
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import com.typesafe.config.ConfigFactory
 import scala.util.{Try, Success, Failure}
 
@@ -9,17 +25,13 @@ val btVersion: String = Try(ConfigFactory.load.getString("version")) match {
 }
 
 val dependencies: Seq[ModuleID] = Seq(
-  "com.typesafe.play" % "play_2.11"                  % "2.5.16",
-  "com.cjww-dev.libs" % "data-security_2.11"         % "2.12.0",
-  "com.cjww-dev.libs" % "application-utilities_2.11" % "2.14.0"
+  "com.cjww-dev.libs" % "application-utilities_2.11" % "3.0.0",
+  ws
 )
 
 val testDependencies: Seq[ModuleID] = Seq(
-  "org.scalatestplus.play" % "scalatestplus-play_2.11" % "2.0.1"  % Test,
-  "org.mockito"            % "mockito-core"            % "2.12.0" % Test
+  "com.cjww-dev.libs" % "testing-framework_2.11" % "2.1.0" % Test
 )
-
-val configKeyBase = "microservice.data-security"
 
 lazy val library = Project(libraryName, file("."))
   .settings(
@@ -37,9 +49,9 @@ lazy val library = Project(libraryName, file("."))
     bintrayOmitLicense                   :=  true,
     fork                    in Test      :=  true,
     javaOptions             in Test      :=  Seq(
-      s"-D$configKeyBase.key=testKey",
-      s"-D$configKeyBase.salt=testSalt",
-      s"-DappName=testAppName",
-      s"-Dmicroservice.external-services.testAppName.application-id"
+      "-Ddata-security.key=testKey",
+      "-Ddata-security.salt=testSalt",
+      "-DappName=testAppName",
+      "-Dmicroservice.external-services.testAppName.application-id"
     )
   )
