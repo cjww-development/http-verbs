@@ -27,7 +27,7 @@ trait MockHttpUtils extends MockitoSugar {
 
   val mockWsClient = mock[WSClient]
 
-  def mockResponse(bodyIn: String, code: Int) = new WSResponse {
+  def mockResponse(bodyIn: String, code: Int): WSResponse = new WSResponse {
     override def statusText           = ""
     override def underlying[T]        = ???
     override def xml                  = ???
