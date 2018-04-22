@@ -38,6 +38,9 @@ class ServerErrorException(message: String, statusCode: Int) extends HttpExcepti
   def getStatusCode: Int = statusCode
 }
 
-class HttpDecryptionException(message: String, statusCode: Int) extends HttpException(message) {
+class HttpDecryptionException
+(message: String, statusCode: Int) extends HttpException(message) {
   def getStatusCode: Int = statusCode
 }
+
+class HttpJsonParseException extends Exception

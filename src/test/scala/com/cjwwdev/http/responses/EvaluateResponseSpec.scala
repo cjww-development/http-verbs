@@ -14,17 +14,41 @@
  * limitations under the License.
  */
 
-package com.cjwwdev.http.verbs
+package com.cjwwdev.http.responses
 
 import com.cjwwdev.http.exceptions._
 import com.cjwwdev.http.mocks.MockHttpUtils
 import org.scalatestplus.play.PlaySpec
+import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.WSResponse
 import play.api.test.Helpers._
 
 class EvaluateResponseSpec extends PlaySpec with MockHttpUtils {
 
-  def testEvaluate(wsResponse: WSResponse) = EvaluateResponse("/test/uri", "Head", wsResponse)
+  def testEvaluate(wsResponse: WSResponse): WSResponse = EvaluateResponse("/test/uri", "Head", wsResponse)
+
+  def buildFakeBody(status: Int): JsValue = Json.parse(
+    s"""
+      |{
+      |   "method" : "PATCH",
+      |   "uri" : "/test/uri/with-body",
+      |   "status" : $status,
+      |   "errorMessage" : "testErrorMessage",
+      |   "errorBody" : {
+      |       "testKey" : [
+      |           {
+      |               "message" : "test"
+      |           }
+      |       ],
+      |       "testKey2" : [
+      |           {
+      |               "message" : "test"
+      |           }
+      |       ]
+      |   }
+      |}
+    """.stripMargin
+  )
 
   "EvaluateResponse" should {
     "return a WsResponse" when {
@@ -42,6 +66,11 @@ class EvaluateResponseSpec extends PlaySpec with MockHttpUtils {
     }
 
     "throw a NotAcceptableException" when {
+      "the status code is 409 and there is a body" in {
+        val resp   = mockResponse(Json.prettyPrint(buildFakeBody(NOT_ACCEPTABLE)), NOT_ACCEPTABLE)
+        intercept[NotAcceptableException](testEvaluate(resp))
+      }
+
       "the status code is 409" in {
         val resp   = mockResponse("", NOT_ACCEPTABLE)
         intercept[NotAcceptableException](testEvaluate(resp))

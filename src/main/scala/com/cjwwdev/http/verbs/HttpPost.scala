@@ -17,6 +17,7 @@
 package com.cjwwdev.http.verbs
 
 import com.cjwwdev.http.headers.HttpHeaders
+import com.cjwwdev.http.responses.EvaluateResponse
 import com.cjwwdev.implicits.ImplicitHandlers
 import play.api.libs.json.OFormat
 import play.api.libs.ws.{WSClient, WSResponse}
