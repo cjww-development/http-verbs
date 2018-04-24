@@ -52,6 +52,26 @@ class WsResponseHelpersSpec extends PlaySpec with ImplicitHandlers {
     )
   ))
 
+  val testEncStringApiResponse = Json.prettyPrint(Json.obj(
+    "uri" -> "/test/uri",
+    "method" -> "GET",
+    "status" -> 200,
+    "body" -> s"${"testString".encrypt}",
+    "stats" -> Json.obj(
+      "requestCompletedAt" -> s"${LocalDateTime.now}"
+    )
+  ))
+
+  val testStringApiResponse = Json.prettyPrint(Json.obj(
+    "uri" -> "/test/uri",
+    "method" -> "GET",
+    "status" -> 200,
+    "body" -> "testString",
+    "stats" -> Json.obj(
+      "requestCompletedAt" -> s"${LocalDateTime.now}"
+    )
+  ))
+
   val testApiResponseInvalid = Json.prettyPrint(Json.obj(
     "uri" -> "/test/uri",
     "method" -> "GET",
@@ -76,6 +96,18 @@ class WsResponseHelpersSpec extends PlaySpec with ImplicitHandlers {
     override def xml = ???
     override def json: JsValue = Json.parse(bodyIn)
     override def bodyAsBytes = ???
+  }
+
+  "toResponseString" should {
+    "return a string without the need to decrypt" in new WsResponseHelpers {
+      val result = testWsResponse(testStringApiResponse).toResponseString(needsDecrypt = false)
+      result mustBe "testString"
+    }
+
+    "return a string after decrypting" in new WsResponseHelpers {
+      val result = testWsResponse(testEncStringApiResponse).toResponseString(needsDecrypt = true)
+      result mustBe "testString"
+    }
   }
 
   "toDataType" should {

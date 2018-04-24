@@ -17,6 +17,7 @@
 package com.cjwwdev.http.responses
 
 import com.cjwwdev.http.exceptions.{HttpDecryptionException, HttpJsonParseException}
+import com.cjwwdev.implicits.ImplicitHandlers
 import com.cjwwdev.logging.Logging
 import com.cjwwdev.security.encryption.DataSecurity
 import play.api.libs.json._
@@ -25,8 +26,23 @@ import play.utils.Colors
 
 import scala.util.{Failure, Success, Try}
 
-trait WsResponseHelpers {
+trait WsResponseHelpers extends ImplicitHandlers {
   implicit class WSResponseOps(wsResponse: WSResponse) extends Logging {
+
+    def toResponseString(needsDecrypt: Boolean): String = {
+      val jsBody = wsResponse.json
+
+      val httpMethod  = jsBody.\("method").as[String]
+      val requestPath = jsBody.\("uri").as[String]
+      val statusCode  = jsBody.\("status").as[Int]
+
+      logger.info(s"[toDataType] - Outbound ${Colors.yellow(httpMethod)} call to ${Colors.green(requestPath)} returned a ${Colors.cyan(statusCode.toString)}")
+
+      val body = jsBody.\("body").as[String]
+
+      if(needsDecrypt) body.decrypt else body
+    }
+
     def toDataType[T](needsDecrypt: Boolean)(implicit reads: Reads[T]): T = {
       val jsBody = wsResponse.json
 
@@ -60,7 +76,7 @@ trait WsResponseHelpers {
     }
 
     private def logWithDetail: WSResponse = {
-      val jsBody = Json.parse(wsResponse.body)
+      val jsBody = wsResponse.json
 
       val httpMethod  = jsBody.\("method").as[String]
       val requestPath = jsBody.\("uri").as[String]
