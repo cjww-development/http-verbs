@@ -18,8 +18,8 @@ package com.cjwwdev.http.verbs
 
 import com.cjwwdev.http.headers.HttpHeaders
 import com.cjwwdev.http.responses.EvaluateResponse
-import com.cjwwdev.implicits.ImplicitHandlers
-import play.api.libs.json.OFormat
+import com.cjwwdev.implicits.ImplicitDataSecurity._
+import play.api.libs.json.{Json, OFormat}
 import play.api.libs.ws.{WSClient, WSResponse}
 import play.api.mvc.Request
 
@@ -31,17 +31,17 @@ trait HttpPost {
 
   val wsClient: WSClient
 
-  def post[T](url: String, data: T)(implicit request: Request[_], format: OFormat[T]): Future[WSResponse] = {
+  def post[T](url: String, data: T, secure: Boolean = true)(implicit request: Request[_], format: OFormat[T]): Future[WSResponse] = {
     wsClient
       .url(url)
       .withHeaders(initialiseHeaderPackage, contentTypeHeader)
-      .post(data.encryptType) map(EvaluateResponse(url, "Post", _))
+      .post(if(secure) data.encryptType else Json.prettyPrint(Json.toJson(data))) map(EvaluateResponse(url, "Post", _))
   }
 
-  def postString(url: String, data: String)(implicit request: Request[_]): Future[WSResponse] = {
+  def postString(url: String, data: String, secure: Boolean = true)(implicit request: Request[_]): Future[WSResponse] = {
     wsClient
       .url(url)
       .withHeaders(initialiseHeaderPackage, contentTypeHeader)
-      .post(data.encrypt) map(EvaluateResponse(url, "PostString", _))
+      .post(if(secure) data.encrypt else data) map(EvaluateResponse(url, "Post", _))
   }
 }

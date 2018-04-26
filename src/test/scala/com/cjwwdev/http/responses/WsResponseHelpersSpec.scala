@@ -17,13 +17,13 @@
 package com.cjwwdev.http.responses
 
 import com.cjwwdev.http.exceptions.HttpJsonParseException
-import com.cjwwdev.implicits.ImplicitHandlers
+import com.cjwwdev.implicits.ImplicitDataSecurity._
 import org.joda.time.LocalDateTime
 import org.scalatestplus.play.PlaySpec
-import play.api.libs.json.{JsString, JsValue, Json}
+import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.WSResponse
 
-class WsResponseHelpersSpec extends PlaySpec with ImplicitHandlers {
+class WsResponseHelpersSpec extends PlaySpec {
 
   case class Test(testString: String, testInteger: Int)
   implicit val reads  = Json.reads[Test]

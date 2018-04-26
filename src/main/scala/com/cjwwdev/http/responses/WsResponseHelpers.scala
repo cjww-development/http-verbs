@@ -17,16 +17,17 @@
 package com.cjwwdev.http.responses
 
 import com.cjwwdev.http.exceptions.{HttpDecryptionException, HttpJsonParseException}
-import com.cjwwdev.implicits.ImplicitHandlers
+import com.cjwwdev.implicits.ImplicitDataSecurity._
 import com.cjwwdev.logging.Logging
 import com.cjwwdev.security.encryption.DataSecurity
+import com.cjwwdev.implicits.ImplicitJsValues._
 import play.api.libs.json._
 import play.api.libs.ws.WSResponse
 import play.utils.Colors
 
 import scala.util.{Failure, Success, Try}
 
-trait WsResponseHelpers extends ImplicitHandlers {
+trait WsResponseHelpers {
   implicit class WSResponseOps(wsResponse: WSResponse) extends Logging {
 
     def toResponseString(needsDecrypt: Boolean): String = {
@@ -46,13 +47,13 @@ trait WsResponseHelpers extends ImplicitHandlers {
     def toDataType[T](needsDecrypt: Boolean)(implicit reads: Reads[T]): T = {
       val jsBody = wsResponse.json
 
-      val httpMethod  = jsBody.\("method").as[String]
-      val requestPath = jsBody.\("uri").as[String]
-      val statusCode  = jsBody.\("status").as[Int]
+      val httpMethod  = jsBody.get[String]("method")
+      val requestPath = jsBody.get[String]("uri")
+      val statusCode  = jsBody.get[Int]("status")
 
       logger.info(s"[toDataType] - Outbound ${Colors.yellow(httpMethod)} call to ${Colors.green(requestPath)} returned a ${Colors.cyan(statusCode.toString)}")
       if(needsDecrypt) {
-        DataSecurity.decryptIntoType[JsValue](jsBody.\("body").as[String]).fold(
+        DataSecurity.decryptIntoType[JsValue](jsBody.get[String]("body")).fold(
           _ => throw new HttpDecryptionException("Unable to decrypt response body into the specified type", statusCode),
           _.validate[T](reads).fold(
             errs => {
@@ -78,19 +79,19 @@ trait WsResponseHelpers extends ImplicitHandlers {
     private def logWithDetail: WSResponse = {
       val jsBody = wsResponse.json
 
-      val httpMethod  = jsBody.\("method").as[String]
-      val requestPath = jsBody.\("uri").as[String]
-      val statusCode  = jsBody.\("status").as[Int]
+      val httpMethod  = jsBody.get[String]("method")
+      val requestPath = jsBody.get[String]("uri")
+      val statusCode  = jsBody.get[Int]("status")
 
-      val errorMessage = jsBody.\("errorMessage").asOpt[String]
-      val errorBody    = jsBody.\("errorBody").as[JsValue]
+      val errorMessage = jsBody.get[String]("errorMessage")
+      val errorBody    = jsBody.getOption[JsValue]("errorBody")
 
       logger.error(s"[logErrorAndReturn] - Outbound ${Colors.red(httpMethod)} call to ${Colors.red(requestPath)} returned a ${Colors.red(statusCode.toString)}")
-      if(errorMessage.isDefined) {
-        logger.error(s"[logErrorAndReturn] - Error message: ${errorMessage.get}")
-        logger.error(s"[logErrorAndReturn] - Error body: ${Json.prettyPrint(errorBody)}")
+      if(errorBody.isDefined) {
+        logger.error(s"[logErrorAndReturn] - Error message: $errorMessage")
+        logger.error(s"[logErrorAndReturn] - Error body: ${Json.prettyPrint(errorBody.get)}")
       } else {
-        logger.error(s"[logErrorAndReturn] - Error body: ${Json.prettyPrint(errorBody)}")
+        logger.error(s"[logErrorAndReturn] - Error message: $errorMessage")
       }
       wsResponse
     }

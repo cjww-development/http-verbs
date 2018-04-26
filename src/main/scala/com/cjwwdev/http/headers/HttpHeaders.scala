@@ -16,13 +16,13 @@
 
 package com.cjwwdev.http.headers
 
-import com.cjwwdev.implicits.ImplicitHandlers
+import com.cjwwdev.implicits.ImplicitDataSecurity._
 import com.typesafe.config.ConfigFactory
 import play.api.http.HeaderNames.CONTENT_TYPE
 import play.api.http.MimeTypes.TEXT
 import play.api.mvc.Request
 
-trait HttpHeaders extends ImplicitHandlers {
+trait HttpHeaders {
   private val configRoot = "microservice.external-services"
 
   lazy val appName        = ConfigFactory.load.getString("appName")
@@ -31,7 +31,7 @@ trait HttpHeaders extends ImplicitHandlers {
   def appIdHeader: (String, String)       = "appId"      -> APPLICATION_ID
   val contentTypeHeader: (String, String) = CONTENT_TYPE -> TEXT
 
-  def sessionIdHeader(implicit request: Request[_]): (String, String) = "cookieId" -> request.session.data.getOrElse("cookieId", "")
+  def sessionIdHeader(implicit request: Request[_]): (String, String) = "cookieId"  -> request.session.data.getOrElse("cookieId", "")
   def contextIdHeader(implicit request: Request[_]): (String, String) = "contextId" -> request.session.data.getOrElse("contextId", "")
 
   def initialiseHeaderPackage(implicit request: Request[_]): (String, String) = {
@@ -40,7 +40,7 @@ trait HttpHeaders extends ImplicitHandlers {
 
   def constructHeaderPackageFromRequestHeaders(implicit request: Request[_]): Option[HeaderPackage] = {
     request.headers.get("cjww-headers").fold(Option.empty[HeaderPackage])(header =>
-      Some(header.decryptType[HeaderPackage](HeaderPackage.format))
+      Some(header.decryptIntoType[HeaderPackage](HeaderPackage.format))
     )
   }
 }
