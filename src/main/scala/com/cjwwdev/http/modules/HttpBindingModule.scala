@@ -17,10 +17,11 @@
 package com.cjwwdev.http.modules
 
 import com.cjwwdev.http.verbs.{Http, HttpImpl}
-import com.google.inject.AbstractModule
+import play.api.{Configuration, Environment}
+import play.api.inject.{Binding, Module}
 
-class HttpBindingModule extends AbstractModule {
-  override def configure(): Unit = {
-    bind(classOf[Http]).to(classOf[HttpImpl]).asEagerSingleton()
-  }
+class HttpBindingModule extends Module {
+  override def bindings(environment: Environment, configuration: Configuration): Seq[Binding[_]] = Seq(
+    bind(classOf[Http]).to(classOf[HttpImpl]).eagerly()
+  )
 }
