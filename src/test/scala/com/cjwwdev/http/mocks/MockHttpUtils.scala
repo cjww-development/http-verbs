@@ -15,6 +15,8 @@
  */
 package com.cjwwdev.http.mocks
 
+import akka.stream.scaladsl.Source
+import akka.util.ByteString
 import org.scalatest.mockito.MockitoSugar
 import play.api.libs.ws.{WSClient, WSResponse}
 
@@ -28,16 +30,18 @@ trait MockHttpUtils extends MockitoSugar {
   val mockWsClient = mock[WSClient]
 
   def mockResponse(bodyIn: String, code: Int): WSResponse = new WSResponse {
-    override def statusText           = ""
-    override def underlying[T]        = ???
-    override def xml                  = ???
-    override def body                 = bodyIn
-    override def header(key: String)  = ???
-    override def cookie(name: String) = ???
-    override def bodyAsBytes          = ???
-    override def cookies              = ???
-    override def status               = code
-    override def json                 = ???
-    override def allHeaders           = ???
+    override def headers: Map[String, Seq[String]]   = ???
+    override def bodyAsSource: Source[ByteString, _] = ???
+    override def statusText                          = ""
+    override def underlying[T]                       = ???
+    override def xml                                 = ???
+    override def body                                = bodyIn
+    override def header(key: String)                 = ???
+    override def cookie(name: String)                = ???
+    override def bodyAsBytes                         = ???
+    override def cookies                             = ???
+    override def status                              = code
+    override def json                                = ???
+    override def allHeaders                          = ???
   }
 }

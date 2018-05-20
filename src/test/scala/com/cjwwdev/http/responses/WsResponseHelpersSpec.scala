@@ -16,6 +16,8 @@
 
 package com.cjwwdev.http.responses
 
+import akka.stream.scaladsl.Source
+import akka.util.ByteString
 import com.cjwwdev.http.exceptions.HttpJsonParseException
 import com.cjwwdev.implicits.ImplicitDataSecurity._
 import org.joda.time.LocalDateTime
@@ -85,17 +87,19 @@ class WsResponseHelpersSpec extends PlaySpec {
   ))
 
   def testWsResponse(bodyIn: String): WSResponse = new WSResponse {
-    override def allHeaders = ???
-    override def underlying[T] = ???
-    override def status = 200
-    override def statusText = "OK"
-    override def header(key: String) = ???
-    override def cookies = ???
-    override def cookie(name: String) = ???
-    override def body = bodyIn
-    override def xml = ???
-    override def json: JsValue = Json.parse(bodyIn)
-    override def bodyAsBytes = ???
+    override def headers: Map[String, Seq[String]]   = ???
+    override def bodyAsSource: Source[ByteString, _] = ???
+    override def allHeaders                          = ???
+    override def underlying[T]                       = ???
+    override def status                              = 200
+    override def statusText                          = "OK"
+    override def header(key: String)                 = ???
+    override def cookies                             = ???
+    override def cookie(name: String)                = ???
+    override def body                                = bodyIn
+    override def xml                                 = ???
+    override def json: JsValue                       = Json.parse(bodyIn)
+    override def bodyAsBytes                         = ???
   }
 
   "toResponseString" should {
