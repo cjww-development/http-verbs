@@ -25,12 +25,12 @@ val btVersion: String = Try(ConfigFactory.load.getString("version")) match {
 }
 
 val dependencies: Seq[ModuleID] = Seq(
-  "com.cjww-dev.libs" % "application-utilities_2.12" % "4.0.0",
+  "com.cjww-dev.libs" % "application-utilities_2.12" % "4.1.0",
   ws
 )
 
 val testDependencies: Seq[ModuleID] = Seq(
-  "com.cjww-dev.libs" % "testing-framework_2.12" % "3.0.0" % Test
+  "com.cjww-dev.libs" % "testing-framework_2.12" % "3.2.0" % Test
 )
 
 lazy val library = Project(libraryName, file("."))
