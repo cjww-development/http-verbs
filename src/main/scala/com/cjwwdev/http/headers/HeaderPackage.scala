@@ -16,11 +16,28 @@
 
 package com.cjwwdev.http.headers
 
+import com.cjwwdev.config.ConfigurationLoader
+import com.cjwwdev.security.deobfuscation.{DeObfuscation, DeObfuscator, DecryptionError}
+import com.cjwwdev.security.obfuscation.{Obfuscation, Obfuscator}
 import play.api.libs.json.{Json, OFormat}
+import play.api.mvc.RequestHeader
 
 case class HeaderPackage(appId: String,
-                         cookieId: String)
+                         cookieId: Option[String])
 
 object HeaderPackage {
+  def build(config: ConfigurationLoader)(implicit rh: RequestHeader): HeaderPackage = HeaderPackage(
+    appId    = config.getServiceId(config.get[String]("appName")),
+    cookieId = rh.session.data.get("cookieId")
+  )
+
   implicit val format: OFormat[HeaderPackage] = Json.format[HeaderPackage]
+
+  implicit val obfuscator: Obfuscator[HeaderPackage] = new Obfuscator[HeaderPackage] {
+    override def encrypt(value: HeaderPackage): String = Obfuscation.obfuscateJson(Json.toJson(value))
+  }
+
+  implicit val deObfuscator: DeObfuscator[HeaderPackage] = new DeObfuscator[HeaderPackage] {
+    override def decrypt(value: String): Either[HeaderPackage, DecryptionError] = DeObfuscation.deObfuscate(value)
+  }
 }
