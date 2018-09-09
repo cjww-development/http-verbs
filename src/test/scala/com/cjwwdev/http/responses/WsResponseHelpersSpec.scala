@@ -20,6 +20,9 @@ import akka.stream.scaladsl.Source
 import akka.util.ByteString
 import com.cjwwdev.http.exceptions.HttpJsonParseException
 import com.cjwwdev.implicits.ImplicitDataSecurity._
+import com.cjwwdev.security.deobfuscation.{DeObfuscation, DeObfuscator, DecryptionError}
+import com.cjwwdev.security.obfuscation.{Obfuscation, Obfuscator}
+import com.cjwwdev.security.obfuscation.Obfuscation._
 import org.joda.time.LocalDateTime
 import org.scalatestplus.play.PlaySpec
 import play.api.libs.json.{JsValue, Json}
@@ -30,6 +33,12 @@ class WsResponseHelpersSpec extends PlaySpec {
   case class Test(testString: String, testInteger: Int)
   implicit val reads  = Json.reads[Test]
   implicit val writes = Json.writes[Test]
+  implicit val obfuscator: Obfuscator[Test] = new Obfuscator[Test] {
+    override def encrypt(value: WsResponseHelpersSpec.this.Test): String = Obfuscation.obfuscateJson(Json.toJson(value))
+  }
+  implicit val deObfuscator: DeObfuscator[Test] = new DeObfuscator[Test] {
+    override def decrypt(value: String): Either[Test, DecryptionError] = DeObfuscation.deObfuscate(value)
+  }
 
   val testApiResponse = Json.prettyPrint(Json.obj(
     "uri" -> "/test/uri",
@@ -48,7 +57,7 @@ class WsResponseHelpersSpec extends PlaySpec {
     "uri" -> "/test/uri",
     "method" -> "GET",
     "status" -> 200,
-    "body" -> s"${Test("testString", 616).encryptType}",
+    "body" -> s"${Test("testString", 616).encrypt}",
     "stats" -> Json.obj(
       "requestCompletedAt" -> s"${LocalDateTime.now}"
     )

@@ -14,29 +14,24 @@
  * limitations under the License.
  */
 
-package com.cjwwdev.http.headers
+package com.cjwwdev.http.headers.filters
 
+import akka.stream.Materializer
 import com.cjwwdev.config.ConfigurationLoader
+import com.cjwwdev.http.headers.HeaderPackage
 import com.cjwwdev.implicits.ImplicitDataSecurity._
-import play.api.http.HeaderNames.CONTENT_TYPE
-import play.api.http.MimeTypes.TEXT
-import play.api.mvc.Request
+import javax.inject.Inject
+import play.api.mvc.{Filter, RequestHeader, Result}
 
-trait HttpHeaders {
+import scala.concurrent.Future
+
+class DefaultHeadersFilter @Inject()(implicit val mat: Materializer,
+                                     protected val config: ConfigurationLoader) extends HeadersFilter
+
+trait HeadersFilter extends Filter {
   protected val config: ConfigurationLoader
 
-  val contentTypeHeader: (String, String) = CONTENT_TYPE -> TEXT
-
-  def initialiseHeaderPackage(implicit request: Request[_]): (String, String) = {
-    "cjww-headers" -> HeaderPackage.build(config).encrypt
-  }
-
-  def constructHeaderPackageFromRequestHeaders(implicit request: Request[_]): Option[HeaderPackage] = {
-    request.headers.get("cjww-headers") map {
-      _.decrypt[HeaderPackage].fold(
-        identity,
-        _ => HeaderPackage.build(config)
-      )
-    }
+  override def apply(f: RequestHeader => Future[Result])(rh: RequestHeader): Future[Result] = {
+    f(rh.withHeaders(rh.headers.add("cjww-headers" -> HeaderPackage.build(config)(rh).encrypt)))
   }
 }

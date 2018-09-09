@@ -16,11 +16,12 @@
 
 package com.cjwwdev.http.responses
 
-import com.cjwwdev.http.exceptions.{HttpDecryptionException, HttpJsonParseException}
+import com.cjwwdev.http.exceptions.HttpJsonParseException
 import com.cjwwdev.implicits.ImplicitDataSecurity._
-import com.cjwwdev.logging.Logging
-import com.cjwwdev.security.encryption.DataSecurity
 import com.cjwwdev.implicits.ImplicitJsValues._
+import com.cjwwdev.logging.Logging
+import com.cjwwdev.security.deobfuscation.DeObfuscation._
+import com.cjwwdev.security.deobfuscation.DeObfuscator
 import play.api.libs.json._
 import play.api.libs.ws.WSResponse
 import play.utils.Colors
@@ -41,10 +42,10 @@ trait WsResponseHelpers {
 
       val body = jsBody.\("body").as[String]
 
-      if(needsDecrypt) body.decrypt else body
+      if(needsDecrypt) body.decrypt[String].fold(identity, x => throw x.asInstanceOf[Throwable]) else body
     }
 
-    def toDataType[T](needsDecrypt: Boolean)(implicit reads: Reads[T]): T = {
+    def toDataType[T](needsDecrypt: Boolean)(implicit deObfuscator: DeObfuscator[T], reads: Reads[T]): T = {
       val jsBody = wsResponse.json
 
       val httpMethod  = jsBody.get[String]("method")
@@ -53,17 +54,7 @@ trait WsResponseHelpers {
 
       logger.info(s"[toDataType] - Outbound ${Colors.yellow(httpMethod)} call to ${Colors.green(requestPath)} returned a ${Colors.cyan(statusCode.toString)}")
       if(needsDecrypt) {
-        DataSecurity.decryptIntoType[JsValue](jsBody.get[String]("body")).fold(
-          _ => throw new HttpDecryptionException("Unable to decrypt response body into the specified type", statusCode),
-          _.validate[T](reads).fold(
-            errs => {
-              logger.error("[toDataType] - Json parsing encountered errors")
-              logger.error(Json.prettyPrint(JsError.toJson(JsError(errs))))
-              throw new HttpJsonParseException
-            },
-            identity
-          )
-        )
+        deObfuscator.decrypt(jsBody.get[String]("body")).fold(identity, x => throw x.asInstanceOf[Throwable])
       } else {
         jsBody.\("body").validate[T](reads).fold(
           errs => {

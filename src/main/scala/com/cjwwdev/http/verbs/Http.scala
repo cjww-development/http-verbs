@@ -16,12 +16,13 @@
 
 package com.cjwwdev.http.verbs
 
+import com.cjwwdev.config.ConfigurationLoader
 import javax.inject.Inject
-
 import com.cjwwdev.http.headers.HttpHeaders
 import play.api.libs.ws.WSClient
 
-class HttpImpl @Inject()(val wsClient: WSClient) extends Http
+class HttpImpl @Inject()(val wsClient: WSClient,
+                         val config: ConfigurationLoader) extends Http
 
 trait Http extends
   HttpHead with
