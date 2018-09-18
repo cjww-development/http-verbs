@@ -25,7 +25,7 @@ val btVersion: String = Try(ConfigFactory.load.getString("version")) match {
 }
 
 val dependencies: Seq[ModuleID] = Seq(
-  "com.cjww-dev.libs" % "application-utilities_2.12" % "4.3.1",
+  "com.cjww-dev.libs" % "application-utilities_2.12" % "4.3.2",
   ws
 )
 
