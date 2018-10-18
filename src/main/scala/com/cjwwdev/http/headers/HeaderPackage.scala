@@ -16,7 +16,6 @@
 
 package com.cjwwdev.http.headers
 
-import com.cjwwdev.config.ConfigurationLoader
 import com.cjwwdev.security.deobfuscation.{DeObfuscation, DeObfuscator, DecryptionError}
 import com.cjwwdev.security.obfuscation.{Obfuscation, Obfuscator}
 import play.api.libs.json.{Json, OFormat}
@@ -26,8 +25,8 @@ case class HeaderPackage(appId: String,
                          cookieId: Option[String])
 
 object HeaderPackage {
-  def build(config: ConfigurationLoader)(implicit rh: RequestHeader): HeaderPackage = HeaderPackage(
-    appId    = config.getServiceId(config.get[String]("appName")),
+  def build(appId: String)(implicit rh: RequestHeader): HeaderPackage = HeaderPackage(
+    appId    = appId,
     cookieId = rh.session.data.get("cookieId")
   )
 

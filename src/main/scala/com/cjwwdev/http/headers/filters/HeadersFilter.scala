@@ -26,12 +26,14 @@ import play.api.mvc.{Filter, RequestHeader, Result}
 import scala.concurrent.Future
 
 class DefaultHeadersFilter @Inject()(implicit val mat: Materializer,
-                                     protected val config: ConfigurationLoader) extends HeadersFilter
+                                     protected val config: ConfigurationLoader) extends HeadersFilter {
+  override val appId: String = config.getServiceId(config.get[String]("appName"))
+}
 
 trait HeadersFilter extends Filter {
-  protected val config: ConfigurationLoader
+  val appId: String
 
   override def apply(f: RequestHeader => Future[Result])(rh: RequestHeader): Future[Result] = {
-    f(rh.withHeaders(rh.headers.add("cjww-headers" -> HeaderPackage.build(config)(rh).encrypt)))
+    f(rh.withHeaders(rh.headers.add("cjww-headers" -> HeaderPackage.build(appId)(rh).encrypt)))
   }
 }
