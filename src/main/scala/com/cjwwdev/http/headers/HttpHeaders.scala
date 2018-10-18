@@ -16,26 +16,25 @@
 
 package com.cjwwdev.http.headers
 
-import com.cjwwdev.config.ConfigurationLoader
 import com.cjwwdev.implicits.ImplicitDataSecurity._
 import play.api.http.HeaderNames.CONTENT_TYPE
 import play.api.http.MimeTypes.TEXT
 import play.api.mvc.Request
 
 trait HttpHeaders {
-  protected val config: ConfigurationLoader
+  val appId: String
 
   val contentTypeHeader: (String, String) = CONTENT_TYPE -> TEXT
 
   def initialiseHeaderPackage(implicit request: Request[_]): (String, String) = {
-    "cjww-headers" -> HeaderPackage.build(config).encrypt
+    "cjww-headers" -> HeaderPackage.build(appId).encrypt
   }
 
   def constructHeaderPackageFromRequestHeaders(implicit request: Request[_]): Option[HeaderPackage] = {
     request.headers.get("cjww-headers") map {
       _.decrypt[HeaderPackage].fold(
         identity,
-        _ => HeaderPackage.build(config)
+        _ => HeaderPackage.build(appId)
       )
     }
   }

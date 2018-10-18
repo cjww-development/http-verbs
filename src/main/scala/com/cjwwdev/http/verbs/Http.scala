@@ -22,7 +22,9 @@ import com.cjwwdev.http.headers.HttpHeaders
 import play.api.libs.ws.WSClient
 
 class HttpImpl @Inject()(val wsClient: WSClient,
-                         val config: ConfigurationLoader) extends Http
+                         val config: ConfigurationLoader) extends Http {
+  override val appId: String = config.getServiceId(config.get[String]("appName"))
+}
 
 trait Http extends
   HttpHead with

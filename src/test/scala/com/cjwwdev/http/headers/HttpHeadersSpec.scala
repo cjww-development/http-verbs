@@ -16,7 +16,6 @@
 
 package com.cjwwdev.http.headers
 
-import com.cjwwdev.config.ConfigurationLoader
 import com.cjwwdev.implicits.ImplicitDataSecurity._
 import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
@@ -25,10 +24,8 @@ import play.api.test.FakeRequest
 
 class HttpHeadersSpec extends PlaySpec with GuiceOneAppPerSuite with MockitoSugar {
 
-  val mockConfig = mock[ConfigurationLoader]
-
   val testHttpHeaders = new HttpHeaders {
-    override protected val config = mockConfig
+    override val appId: String = "testAppId"
   }
 
   "contentTypeHeader" should {
@@ -43,7 +40,7 @@ class HttpHeadersSpec extends PlaySpec with GuiceOneAppPerSuite with MockitoSuga
       val request = FakeRequest().withSession("cookieId" -> "testSessionId")
 
       val (key, value) = testHttpHeaders.initialiseHeaderPackage(request)
-      key mustBe "cjww-headers"
+      key            mustBe "cjww-headers"
       value.getClass mustBe classOf[String]
     }
   }
