@@ -25,7 +25,7 @@ val btVersion: String = Try(ConfigFactory.load.getString("version")) match {
 }
 
 val dependencies: Seq[ModuleID] = Seq(
-  "com.cjww-dev.libs" % "application-utilities_2.12" % "4.3.2",
+  "com.cjww-dev.libs" % "application-utilities_2.12" % "4.5.2",
   ws
 )
 
@@ -36,7 +36,7 @@ val testDependencies: Seq[ModuleID] = Seq(
 lazy val library = Project(libraryName, file("."))
   .settings(
     version                              :=  btVersion,
-    scalaVersion                         :=  "2.12.6",
+    scalaVersion                         :=  "2.12.7",
     organization                         :=  "com.cjww-dev.libs",
     resolvers                            ++= Seq(
       "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/",
