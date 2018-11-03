@@ -20,6 +20,7 @@ import com.cjwwdev.http.headers.HttpHeaders
 import com.cjwwdev.http.responses.EvaluateResponse
 import play.api.libs.ws.{WSClient, WSResponse}
 import play.api.mvc.Request
+import play.api.http.HttpVerbs.HEAD
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -29,10 +30,10 @@ trait HttpHead {
 
   val wsClient: WSClient
 
-  def head(url: String)(implicit request: Request[_]): Future[WSResponse] = {
+  def head(url: String, headers: Seq[(String, String)] = Seq())(implicit request: Request[_]): Future[WSResponse] = {
     wsClient
       .url(url)
-      .withHeaders(initialiseHeaderPackage, contentTypeHeader)
-      .head map(EvaluateResponse(url, "Head", _))
+      .withHttpHeaders(headers ++ Seq(initialiseHeaderPackage, contentTypeHeader):_*)
+      .head map(EvaluateResponse(url, HEAD, _))
   }
 }
