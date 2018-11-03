@@ -24,6 +24,7 @@ import com.cjwwdev.security.obfuscation.Obfuscator
 import play.api.libs.json.{Json, OFormat}
 import play.api.libs.ws.{WSClient, WSResponse}
 import play.api.mvc.Request
+import play.api.http.HttpVerbs.PATCH
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -33,18 +34,19 @@ trait HttpPatch {
 
   val wsClient: WSClient
 
-  def patch[T](url: String, data: T, secure: Boolean = true)
+  def patch[T](url: String, data: T, secure: Boolean = true, headers: Seq[(String, String)] = Seq())
               (implicit request: Request[_], format: OFormat[T], obfuscator: Obfuscator[T]): Future[WSResponse] = {
     wsClient
       .url(url)
-      .withHeaders(initialiseHeaderPackage, contentTypeHeader)
-      .patch(if(secure) data.encrypt else Json.prettyPrint(Json.toJson(data))) map(EvaluateResponse(url, "Patch", _))
+      .withHttpHeaders(headers ++ Seq(initialiseHeaderPackage, contentTypeHeader):_*)
+      .patch(if(secure) data.encrypt else Json.prettyPrint(Json.toJson(data))) map(EvaluateResponse(url, PATCH, _))
   }
 
-  def patchString(url: String, data: String, secure: Boolean = true)(implicit request: Request[_]): Future[WSResponse] = {
+  def patchString(url: String, data: String, secure: Boolean = true, headers: Seq[(String, String)] = Seq())
+                 (implicit request: Request[_]): Future[WSResponse] = {
     wsClient
       .url(url)
-      .withHeaders(initialiseHeaderPackage, contentTypeHeader)
-      .patch(if(secure) data.encrypt else data) map(EvaluateResponse(url, "Patch", _))
+      .withHttpHeaders(headers ++ Seq(initialiseHeaderPackage, contentTypeHeader):_*)
+      .patch(if(secure) data.encrypt else data) map(EvaluateResponse(url, PATCH, _))
   }
 }

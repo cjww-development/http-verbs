@@ -24,6 +24,7 @@ import com.cjwwdev.security.obfuscation.Obfuscator
 import play.api.libs.json.{Json, OFormat}
 import play.api.libs.ws.{WSClient, WSResponse}
 import play.api.mvc.Request
+import play.api.http.HttpVerbs.PUT
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -33,17 +34,19 @@ trait HttpPut {
 
   val wsClient: WSClient
 
-  def put[T](url: String, data: T, secure: Boolean = true)(implicit request: Request[_], format: OFormat[T], obfuscator: Obfuscator[T]): Future[WSResponse] = {
+  def put[T](url: String, data: T, secure: Boolean = true, headers: Seq[(String, String)] = Seq())
+            (implicit request: Request[_], format: OFormat[T], obfuscator: Obfuscator[T]): Future[WSResponse] = {
     wsClient
       .url(url)
-      .withHeaders(initialiseHeaderPackage, contentTypeHeader)
-      .put(if(secure) data.encrypt else Json.prettyPrint(Json.toJson(data))) map(EvaluateResponse(url, "Put", _))
+      .withHttpHeaders(headers ++ Seq(initialiseHeaderPackage, contentTypeHeader):_*)
+      .put(if(secure) data.encrypt else Json.prettyPrint(Json.toJson(data))) map(EvaluateResponse(url, PUT, _))
   }
 
-  def putString(url: String, data: String, secure: Boolean = true)(implicit request: Request[_]): Future[WSResponse] = {
+  def putString(url: String, data: String, secure: Boolean = true, headers: Seq[(String, String)] = Seq())
+               (implicit request: Request[_]): Future[WSResponse] = {
     wsClient
       .url(url)
-      .withHeaders(initialiseHeaderPackage, contentTypeHeader)
-      .put(if(secure) data.encrypt else data) map(EvaluateResponse(url, "Put", _))
+      .withHttpHeaders(headers ++ Seq(initialiseHeaderPackage, contentTypeHeader):_*)
+      .put(if(secure) data.encrypt else data) map(EvaluateResponse(url, PUT, _))
   }
 }

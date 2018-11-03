@@ -20,6 +20,7 @@ import com.cjwwdev.http.headers.HttpHeaders
 import com.cjwwdev.http.responses.EvaluateResponse
 import play.api.libs.ws.{WSClient, WSResponse}
 import play.api.mvc.Request
+import play.api.http.HttpVerbs.DELETE
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -29,10 +30,10 @@ trait HttpDelete {
 
   val wsClient: WSClient
 
-  def delete(url: String)(implicit request: Request[_]): Future[WSResponse] = {
+  def delete(url: String, headers: Seq[(String, String)] = Seq())(implicit request: Request[_]): Future[WSResponse] = {
     wsClient
       .url(url)
-      .withHeaders(initialiseHeaderPackage, contentTypeHeader)
-      .delete map(EvaluateResponse(url, "Delete", _))
+      .withHttpHeaders(headers ++ Seq(initialiseHeaderPackage, contentTypeHeader):_*)
+      .delete map(EvaluateResponse(url, DELETE, _))
   }
 }
