@@ -18,16 +18,16 @@ package com.cjwwdev.http.verbs
 
 import com.cjwwdev.http.headers.HttpHeaders
 import com.cjwwdev.http.responses.EvaluateResponse
+import com.cjwwdev.http.responses.EvaluateResponse.ConnectorResponse
 import com.cjwwdev.implicits.ImplicitDataSecurity._
 import com.cjwwdev.security.obfuscation.Obfuscation._
 import com.cjwwdev.security.obfuscation.Obfuscator
-import play.api.libs.json.{Json, OFormat}
-import play.api.libs.ws.{WSClient, WSResponse}
-import play.api.mvc.Request
 import play.api.http.HttpVerbs.PUT
+import play.api.libs.json.{Json, OFormat}
+import play.api.libs.ws.WSClient
+import play.api.mvc.Request
 
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{Future, ExecutionContext => ExC}
 
 trait HttpPut {
   self: HttpHeaders =>
@@ -35,18 +35,20 @@ trait HttpPut {
   val wsClient: WSClient
 
   def put[T](url: String, data: T, secure: Boolean = true, headers: Seq[(String, String)] = Seq())
-            (implicit request: Request[_], format: OFormat[T], obfuscator: Obfuscator[T]): Future[WSResponse] = {
+            (implicit ec: ExC, request: Request[_], format: OFormat[T], obfuscator: Obfuscator[T]): Future[ConnectorResponse] = {
     wsClient
       .url(url)
-      .withHttpHeaders(headers ++ Seq(initialiseHeaderPackage, contentTypeHeader):_*)
-      .put(if(secure) data.encrypt else Json.prettyPrint(Json.toJson(data))) map(EvaluateResponse(url, PUT, _))
+      .withHttpHeaders(headers ++ Seq(initialiseHeaderPackage, requestIdHeader, contentTypeHeader):_*)
+      .put(if(secure) data.encrypt else Json.prettyPrint(Json.toJson(data)))
+      .map(EvaluateResponse(url, PUT, _))
   }
 
   def putString(url: String, data: String, secure: Boolean = true, headers: Seq[(String, String)] = Seq())
-               (implicit request: Request[_]): Future[WSResponse] = {
+               (implicit ec: ExC, request: Request[_]): Future[ConnectorResponse] = {
     wsClient
       .url(url)
-      .withHttpHeaders(headers ++ Seq(initialiseHeaderPackage, contentTypeHeader):_*)
-      .put(if(secure) data.encrypt else data) map(EvaluateResponse(url, PUT, _))
+      .withHttpHeaders(headers ++ Seq(initialiseHeaderPackage, requestIdHeader, contentTypeHeader):_*)
+      .put(if(secure) data.encrypt else data)
+      .map(EvaluateResponse(url, PUT, _))
   }
 }

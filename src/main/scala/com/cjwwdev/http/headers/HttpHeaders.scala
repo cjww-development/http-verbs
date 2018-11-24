@@ -26,6 +26,10 @@ trait HttpHeaders {
 
   val contentTypeHeader: (String, String) = CONTENT_TYPE -> TEXT
 
+  def requestIdHeader(implicit request: Request[_]): (String, String) = {
+    "requestId" -> request.headers.get("requestId").getOrElse("-")
+  }
+
   def initialiseHeaderPackage(implicit request: Request[_]): (String, String) = {
     "cjww-headers" -> HeaderPackage.build(appId).encrypt
   }

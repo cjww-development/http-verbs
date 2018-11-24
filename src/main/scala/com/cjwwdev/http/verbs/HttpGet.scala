@@ -18,22 +18,23 @@ package com.cjwwdev.http.verbs
 
 import com.cjwwdev.http.headers.HttpHeaders
 import com.cjwwdev.http.responses.EvaluateResponse
-import play.api.libs.ws.{WSClient, WSResponse}
-import play.api.mvc.Request
+import com.cjwwdev.http.responses.EvaluateResponse.ConnectorResponse
 import play.api.http.HttpVerbs.GET
+import play.api.libs.ws.WSClient
+import play.api.mvc.Request
 
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{Future, ExecutionContext => ExC}
 
 trait HttpGet {
   self: HttpHeaders =>
 
   val wsClient: WSClient
 
-  def get(url: String, headers: Seq[(String, String)] = Seq())(implicit request: Request[_]): Future[WSResponse] = {
+  def get(url: String, headers: Seq[(String, String)] = Seq())(implicit ec: ExC, request: Request[_]): Future[ConnectorResponse] = {
     wsClient
       .url(url)
-      .withHttpHeaders(headers ++ Seq(initialiseHeaderPackage, contentTypeHeader):_*)
-      .get map(EvaluateResponse(url, GET, _))
+      .withHttpHeaders(headers ++ Seq(initialiseHeaderPackage, requestIdHeader, contentTypeHeader):_*)
+      .get
+      .map(EvaluateResponse(url, GET, _))
   }
 }

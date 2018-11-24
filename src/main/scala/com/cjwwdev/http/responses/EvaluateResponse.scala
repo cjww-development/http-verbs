@@ -16,9 +16,7 @@
 
 package com.cjwwdev.http.responses
 
-import com.cjwwdev.http.exceptions._
 import com.cjwwdev.logging.Logging
-import play.api.http.Status._
 import play.api.libs.ws.WSResponse
 
 object EvaluateResponse extends Logging with WsResponseHelpers {
@@ -30,14 +28,13 @@ object EvaluateResponse extends Logging with WsResponseHelpers {
   private val clientError = new Contains(400 to 499)
   private val serverError = new Contains(500 to 599)
 
-  def apply(url: String, method: String, response: WSResponse): WSResponse = response.status match {
-    case success()      => response
-    case BAD_REQUEST    => throw new BadRequestException(response.logErrorAndReturn(url, method).body)
-    case FORBIDDEN      => throw new ForbiddenException(response.logErrorAndReturn(url, method).body)
-    case NOT_FOUND      => throw new NotFoundException(response.logErrorAndReturn(url, method).body)
-    case NOT_ACCEPTABLE => throw new NotAcceptableException(response.logErrorAndReturn(url, method).body)
-    case CONFLICT       => throw new ConflictException(response.logErrorAndReturn(url, method).body)
-    case clientError()  => throw new ClientErrorException(response.logErrorAndReturn(url, method).body, response.status)
-    case serverError()  => throw new ServerErrorException(response.logErrorAndReturn(url, method).body, response.status)
+  type ConnectorResponse = Either[WSResponse, WSResponse]
+
+  val SuccessResponse: Left.type = scala.util.Left
+  val ErrorResponse: Right.type  = scala.util.Right
+
+  def apply(url: String, method: String, response: WSResponse): ConnectorResponse = response.status match {
+    case success()                     => SuccessResponse(response.logResponse(url, method, inError = false))
+    case clientError() | serverError() => ErrorResponse(response.logResponse(url, method, inError = true))
   }
 }
