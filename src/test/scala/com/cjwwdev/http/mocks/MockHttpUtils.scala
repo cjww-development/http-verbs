@@ -20,8 +20,8 @@ import akka.util.ByteString
 import org.scalatest.mockito.MockitoSugar
 import play.api.libs.ws.{WSClient, WSResponse}
 
-import scala.concurrent.{Await, Awaitable}
 import scala.concurrent.duration._
+import scala.concurrent.{Await, Awaitable}
 
 trait MockHttpUtils extends MockitoSugar {
   implicit val duration: Duration = 5.seconds

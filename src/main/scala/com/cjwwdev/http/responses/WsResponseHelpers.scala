@@ -31,15 +31,15 @@ import play.utils.Colors
 import scala.util.Try
 
 trait WsResponseHelpers {
-  implicit class WSResponseOps(wsResponse: WSResponse)(implicit request: Request[_]) extends Logger {
+  implicit class WSResponseOps(wsResponse: WSResponse) extends Logger {
     private val colouredOutput: Boolean = Try(ConfigFactory.load().getBoolean("logging.colouredOutput")).getOrElse(false)
 
-    def logResponse(url: String, method: String, inError: Boolean): WSResponse = {
+    def logResponse(url: String, method: String, inError: Boolean)(implicit request: Request[_]): WSResponse = {
       wsResponse.logOutboundCall(url, method, inError)
       if(inError) wsResponse.logError else wsResponse
     }
 
-    protected def logOutboundCall(url: String, method: String, inError: Boolean): WSResponse = {
+    protected def logOutboundCall(url: String, method: String, inError: Boolean)(implicit request: Request[_]): WSResponse = {
       val methodColour: String = logInColour(method, inError)(Colors.yellow)
       val urlColour: String    = logInColour(url, inError)(Colors.green)
       val statusColour: String = logInColour(wsResponse.status.toString, inError)(Colors.cyan)
@@ -48,7 +48,7 @@ trait WsResponseHelpers {
       wsResponse
     }
 
-    protected def logError: WSResponse = {
+    protected def logError(implicit request: Request[_]): WSResponse = {
       val jsBody       = wsResponse.json
       val errorMessage = jsBody.get[String]("errorMessage")
       val errorBody    = jsBody.getOption[JsValue]("errorBody")
@@ -76,7 +76,7 @@ trait WsResponseHelpers {
       if(needsDecrypt) body.decrypt[String].map(_ => HttpDecryptionError) else Left(body)
     }
 
-    def toDataType[T](needsDecrypt: Boolean)(implicit deObfuscator: DeObfuscator[T], reads: Reads[T]): Either[T, HttpError] = {
+    def toDataType[T](needsDecrypt: Boolean)(implicit request: Request[_], deObfuscator: DeObfuscator[T], reads: Reads[T]): Either[T, HttpError] = {
       val jsBody = wsResponse.json
 
       if(needsDecrypt) {

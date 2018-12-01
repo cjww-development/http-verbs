@@ -17,8 +17,8 @@
 package com.cjwwdev.http.verbs
 
 import com.cjwwdev.config.ConfigurationLoader
-import javax.inject.Inject
 import com.cjwwdev.http.headers.HttpHeaders
+import javax.inject.Inject
 import play.api.libs.ws.WSClient
 
 class HttpImpl @Inject()(val wsClient: WSClient,

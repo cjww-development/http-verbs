@@ -17,8 +17,8 @@
 package com.cjwwdev.http.modules
 
 import com.cjwwdev.http.verbs.{Http, HttpImpl}
-import play.api.{Configuration, Environment}
 import play.api.inject.{Binding, Module}
+import play.api.{Configuration, Environment}
 
 class HttpBindingModule extends Module {
   override def bindings(environment: Environment, configuration: Configuration): Seq[Binding[_]] = Seq(

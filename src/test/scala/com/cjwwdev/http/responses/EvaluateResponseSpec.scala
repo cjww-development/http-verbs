@@ -16,7 +16,6 @@
 
 package com.cjwwdev.http.responses
 
-import com.cjwwdev.http.exceptions._
 import com.cjwwdev.http.mocks.MockHttpUtils
 import com.cjwwdev.http.responses.EvaluateResponse.ConnectorResponse
 import org.scalatestplus.play.PlaySpec
