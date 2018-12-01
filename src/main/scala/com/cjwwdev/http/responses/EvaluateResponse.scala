@@ -18,6 +18,7 @@ package com.cjwwdev.http.responses
 
 import com.cjwwdev.logging.Logging
 import play.api.libs.ws.WSResponse
+import play.api.mvc.Request
 
 object EvaluateResponse extends Logging with WsResponseHelpers {
   private class Contains(range: Range) {
@@ -33,7 +34,7 @@ object EvaluateResponse extends Logging with WsResponseHelpers {
   val SuccessResponse: Left.type = scala.util.Left
   val ErrorResponse: Right.type  = scala.util.Right
 
-  def apply(url: String, method: String, response: WSResponse): ConnectorResponse = response.status match {
+  def apply(url: String, method: String, response: WSResponse)(implicit request: Request[_]): ConnectorResponse = response.status match {
     case success()                     => SuccessResponse(response.logResponse(url, method, inError = false))
     case clientError() | serverError() => ErrorResponse(response.logResponse(url, method, inError = true))
   }

@@ -35,12 +35,10 @@ class DefaultHeadersFilter @Inject()(implicit val mat: Materializer,
 trait HeadersFilter extends Filter {
   val appId: String
 
-  private def generateRequestId: String = s"requestId-${UUID.randomUUID()}"
-
   override def apply(f: RequestHeader => Future[Result])(rh: RequestHeader): Future[Result] = {
     f(rh.withHeaders(rh.headers.add(
       "cjww-headers" -> HeaderPackage.build(appId)(rh).encrypt,
-      "requestId"    -> generateRequestId
+      "requestId"    -> s"requestId-${UUID.randomUUID()}"
     )))
   }
 }
