@@ -18,22 +18,23 @@ package com.cjwwdev.http.verbs
 
 import com.cjwwdev.http.headers.HttpHeaders
 import com.cjwwdev.http.responses.EvaluateResponse
-import play.api.libs.ws.{WSClient, WSResponse}
-import play.api.mvc.Request
+import com.cjwwdev.http.responses.EvaluateResponse.ConnectorResponse
 import play.api.http.HttpVerbs.DELETE
+import play.api.libs.ws.WSClient
+import play.api.mvc.Request
 
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{Future, ExecutionContext => ExC}
 
 trait HttpDelete {
   self: HttpHeaders =>
 
   val wsClient: WSClient
 
-  def delete(url: String, headers: Seq[(String, String)] = Seq())(implicit request: Request[_]): Future[WSResponse] = {
+  def delete(url: String, headers: Seq[(String, String)] = Seq())(implicit ec: ExC, request: Request[_]): Future[ConnectorResponse] = {
     wsClient
       .url(url)
-      .withHttpHeaders(headers ++ Seq(initialiseHeaderPackage, contentTypeHeader):_*)
-      .delete map(EvaluateResponse(url, DELETE, _))
+      .withHttpHeaders(headers ++ Seq(initialiseHeaderPackage, requestIdHeader, contentTypeHeader):_*)
+      .delete
+      .map(EvaluateResponse(url, DELETE, _))
   }
 }

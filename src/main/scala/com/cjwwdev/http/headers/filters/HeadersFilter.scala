@@ -16,6 +16,8 @@
 
 package com.cjwwdev.http.headers.filters
 
+import java.util.UUID
+
 import akka.stream.Materializer
 import com.cjwwdev.config.ConfigurationLoader
 import com.cjwwdev.http.headers.HeaderPackage
@@ -34,6 +36,9 @@ trait HeadersFilter extends Filter {
   val appId: String
 
   override def apply(f: RequestHeader => Future[Result])(rh: RequestHeader): Future[Result] = {
-    f(rh.withHeaders(rh.headers.add("cjww-headers" -> HeaderPackage.build(appId)(rh).encrypt)))
+    f(rh.withHeaders(rh.headers.add(
+      "cjww-headers" -> HeaderPackage.build(appId)(rh).encrypt,
+      "requestId"    -> s"requestId-${UUID.randomUUID()}"
+    )))
   }
 }

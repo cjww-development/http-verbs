@@ -18,15 +18,15 @@ package com.cjwwdev.http.responses
 
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
-import com.cjwwdev.http.exceptions.HttpJsonParseException
 import com.cjwwdev.implicits.ImplicitDataSecurity._
 import com.cjwwdev.security.deobfuscation.{DeObfuscation, DeObfuscator, DecryptionError}
-import com.cjwwdev.security.obfuscation.{Obfuscation, Obfuscator}
 import com.cjwwdev.security.obfuscation.Obfuscation._
+import com.cjwwdev.security.obfuscation.{Obfuscation, Obfuscator}
 import org.joda.time.LocalDateTime
 import org.scalatestplus.play.PlaySpec
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.WSResponse
+import play.api.test.FakeRequest
 
 class WsResponseHelpersSpec extends PlaySpec {
 
@@ -111,31 +111,29 @@ class WsResponseHelpersSpec extends PlaySpec {
     override def bodyAsBytes                         = ???
   }
 
+  implicit val request = FakeRequest()
+
   "toResponseString" should {
     "return a string without the need to decrypt" in new WsResponseHelpers {
       val result = testWsResponse(testStringApiResponse).toResponseString(needsDecrypt = false)
-      result mustBe "testString"
+      result mustBe Left("testString")
     }
 
     "return a string after decrypting" in new WsResponseHelpers {
       val result = testWsResponse(testEncStringApiResponse).toResponseString(needsDecrypt = true)
-      result mustBe "testString"
+      result mustBe Left("testString")
     }
   }
 
   "toDataType" should {
     "return a Test" in new WsResponseHelpers {
       val result = testWsResponse(testApiResponse).toDataType[Test](needsDecrypt = false)
-      result mustBe Test("testString", 616)
+      result mustBe Left(Test("testString", 616))
     }
 
     "return a Test (after decrypting)" in new WsResponseHelpers {
       val result = testWsResponse(testEncApiResponse).toDataType[Test](needsDecrypt = true)
-      result mustBe Test("testString", 616)
-    }
-
-    "throw a HttpJsonParseException" in new WsResponseHelpers {
-      intercept[HttpJsonParseException](testWsResponse(testApiResponseInvalid).toDataType[Test](needsDecrypt = false))
+      result mustBe Left(Test("testString", 616))
     }
   }
 }

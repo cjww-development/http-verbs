@@ -16,86 +16,79 @@
 
 package com.cjwwdev.http.responses
 
-import com.cjwwdev.http.exceptions.HttpJsonParseException
+import com.cjwwdev.http.exceptions.{HttpDecryptionError, HttpError, HttpJsonParseError}
 import com.cjwwdev.implicits.ImplicitDataSecurity._
 import com.cjwwdev.implicits.ImplicitJsValues._
-import com.cjwwdev.logging.Logging
+import com.cjwwdev.logging.output.Logger
 import com.cjwwdev.security.deobfuscation.DeObfuscation._
 import com.cjwwdev.security.deobfuscation.DeObfuscator
+import com.typesafe.config.ConfigFactory
 import play.api.libs.json._
 import play.api.libs.ws.WSResponse
+import play.api.mvc.Request
 import play.utils.Colors
 
-import scala.util.{Failure, Success, Try}
+import scala.util.Try
 
 trait WsResponseHelpers {
-  implicit class WSResponseOps(wsResponse: WSResponse) extends Logging {
+  implicit class WSResponseOps(wsResponse: WSResponse)(implicit request: Request[_]) extends Logger {
+    private val colouredOutput: Boolean = Try(ConfigFactory.load().getBoolean("logging.colouredOutput")).getOrElse(false)
 
-    def toResponseString(needsDecrypt: Boolean): String = {
-      val jsBody = wsResponse.json
-
-      val httpMethod  = jsBody.\("method").as[String]
-      val requestPath = jsBody.\("uri").as[String]
-      val statusCode  = jsBody.\("status").as[Int]
-
-      logger.info(s"[toDataType] - Outbound ${Colors.yellow(httpMethod)} call to ${Colors.green(requestPath)} returned a ${Colors.cyan(statusCode.toString)}")
-
-      val body = jsBody.\("body").as[String]
-
-      if(needsDecrypt) body.decrypt[String].fold(identity, x => throw x.asInstanceOf[Throwable]) else body
+    def logResponse(url: String, method: String, inError: Boolean): WSResponse = {
+      wsResponse.logOutboundCall(url, method, inError)
+      if(inError) wsResponse.logError else wsResponse
     }
 
-    def toDataType[T](needsDecrypt: Boolean)(implicit deObfuscator: DeObfuscator[T], reads: Reads[T]): T = {
-      val jsBody = wsResponse.json
-
-      val httpMethod  = jsBody.get[String]("method")
-      val requestPath = jsBody.get[String]("uri")
-      val statusCode  = jsBody.get[Int]("status")
-
-      logger.info(s"[toDataType] - Outbound ${Colors.yellow(httpMethod)} call to ${Colors.green(requestPath)} returned a ${Colors.cyan(statusCode.toString)}")
-      if(needsDecrypt) {
-        deObfuscator.decrypt(jsBody.get[String]("body")).fold(identity, x => throw x.asInstanceOf[Throwable])
-      } else {
-        jsBody.\("body").validate[T](reads).fold(
-          errs => {
-            logger.error("[toDataType] - Json parsing encountered errors")
-            logger.error(Json.prettyPrint(JsError.toJson(JsError(errs))))
-            throw new HttpJsonParseException
-          },
-          identity
-        )
-      }
+    protected def logOutboundCall(url: String, method: String, inError: Boolean): WSResponse = {
+      val methodColour: String = logInColour(method, inError)(Colors.yellow)
+      val urlColour: String    = logInColour(url, inError)(Colors.green)
+      val statusColour: String = logInColour(wsResponse.status.toString, inError)(Colors.cyan)
+      val logString = s"Outbound $methodColour call to $urlColour returned a $statusColour"
+      if(inError) LogAt.error(logString) else LogAt.info(logString)
+      wsResponse
     }
 
-    private def logWithDetail: WSResponse = {
-      val jsBody = wsResponse.json
-
-      val httpMethod  = jsBody.get[String]("method")
-      val requestPath = jsBody.get[String]("uri")
-      val statusCode  = jsBody.get[Int]("status")
-
+    protected def logError: WSResponse = {
+      val jsBody       = wsResponse.json
       val errorMessage = jsBody.get[String]("errorMessage")
       val errorBody    = jsBody.getOption[JsValue]("errorBody")
 
-      logger.error(s"[logErrorAndReturn] - Outbound ${Colors.red(httpMethod)} call to ${Colors.red(requestPath)} returned a ${Colors.red(statusCode.toString)}")
       if(errorBody.isDefined) {
-        logger.error(s"[logErrorAndReturn] - Error message: $errorMessage")
-        logger.error(s"[logErrorAndReturn] - Error body: ${Json.prettyPrint(errorBody.get)}")
+        LogAt.error(s"Error message: $errorMessage -> Error body: ${Json.prettyPrint(errorBody.get)}")
       } else {
-        logger.error(s"[logErrorAndReturn] - Error message: $errorMessage")
+        LogAt.error(s"Error message: $errorMessage")
       }
       wsResponse
     }
 
-    private def minimalLogging(url: String, method: String): WSResponse = {
-      logger.error(s"[logErrorAndReturn] - Outbound ${Colors.red(method)} call to ${Colors.red(url)} returned a ${Colors.red(wsResponse.status.toString)}")
-      wsResponse
+    protected def logInColour(log: String, inError: Boolean)(logString: String => String): String = {
+      (inError, colouredOutput) match {
+        case (true,  true) => Colors.red(log)
+        case (false, true) => logString(log)
+        case (_,_)         => log
+      }
     }
 
-    def logErrorAndReturn(url: String, method: String): WSResponse = {
-      Try(logWithDetail) match {
-        case Success(resp) => resp
-        case Failure(_)    => minimalLogging(url, method)
+    def toResponseString(needsDecrypt: Boolean): Either[String, HttpError] = {
+      val jsBody = wsResponse.json
+      val body   = jsBody.\("body").as[String]
+
+      if(needsDecrypt) body.decrypt[String].map(_ => HttpDecryptionError) else Left(body)
+    }
+
+    def toDataType[T](needsDecrypt: Boolean)(implicit deObfuscator: DeObfuscator[T], reads: Reads[T]): Either[T, HttpError] = {
+      val jsBody = wsResponse.json
+
+      if(needsDecrypt) {
+        deObfuscator.decrypt(jsBody.get[String]("body")).map(_ => HttpDecryptionError)
+      } else {
+        jsBody.\("body").validate[T](reads).fold(
+          errs => {
+            LogAt.error(s"[toDataType] - Json parsing encountered errors -> ${Json.prettyPrint(JsError.toJson(JsError(errs)))}")
+            Right(HttpJsonParseError)
+          },
+          Left(_)
+        )
       }
     }
   }

@@ -15,28 +15,12 @@
  */
 package com.cjwwdev.http.session
 
-import com.cjwwdev.http.exceptions.{FirstNameNotFound, LastNameNotFound}
 import play.api.mvc.Request
-
-import scala.util.control.NoStackTrace
 
 object SessionUtils extends SessionUtils
 
 trait SessionUtils {
-
-  case class CookieIdMismatch(msg: String) extends NoStackTrace
-
   def getCookieId(implicit request: Request[_]): String = {
     request.session.data.getOrElse("cookieId", "")
   }
-
-  def getFirstName(implicit request: Request[_]): String = request.session.data.getOrElse(
-    "firstName",
-    throw new FirstNameNotFound("ERROR User not authenticated; no firstName present in request session")
-  )
-
-  def getLastName(implicit request: Request[_]): String = request.session.data.getOrElse(
-    "lastName",
-    throw new LastNameNotFound("ERROR User not authenticated; no lastName present in request session")
-  )
 }

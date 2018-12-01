@@ -24,22 +24,7 @@ class ContextIdNotFound(message: String) extends HttpHeaderException(message)
 class FirstNameNotFound(message: String) extends HttpHeaderException(message)
 class LastNameNotFound(message: String) extends HttpHeaderException(message)
 
-class BadRequestException(message: String) extends HttpException(message)
-class ForbiddenException(message: String) extends HttpException(message)
-class NotFoundException(message: String) extends HttpException(message)
-class ConflictException(message: String) extends HttpException(message)
-class NotAcceptableException(message: String) extends HttpException(message)
 
-class ClientErrorException(message: String, statusCode: Int) extends HttpException(message) {
-  def getStatusCode: Int = statusCode
-}
-
-class ServerErrorException(message: String, statusCode: Int) extends HttpException(message) {
-  def getStatusCode: Int = statusCode
-}
-
-class HttpDecryptionException(message: String, statusCode: Int) extends HttpException(message) {
-  def getStatusCode: Int = statusCode
-}
-
-class HttpJsonParseException extends Exception
+sealed trait HttpError
+case object HttpJsonParseError extends HttpError
+case object HttpDecryptionError extends HttpError
