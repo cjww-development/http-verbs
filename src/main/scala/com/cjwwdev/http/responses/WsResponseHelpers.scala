@@ -23,6 +23,7 @@ import com.cjwwdev.logging.output.Logger
 import com.cjwwdev.security.deobfuscation.DeObfuscation._
 import com.cjwwdev.security.deobfuscation.DeObfuscator
 import com.typesafe.config.ConfigFactory
+import play.api.http.HttpVerbs
 import play.api.libs.json._
 import play.api.libs.ws.WSResponse
 import play.api.mvc.Request
@@ -36,7 +37,7 @@ trait WsResponseHelpers {
 
     def logResponse(url: String, method: String, inError: Boolean)(implicit request: Request[_]): WSResponse = {
       wsResponse.logOutboundCall(url, method, inError)
-      if(inError) wsResponse.logError else wsResponse
+      if(inError && (method != HttpVerbs.HEAD)) wsResponse.logError else wsResponse
     }
 
     protected def logOutboundCall(url: String, method: String, inError: Boolean)(implicit request: Request[_]): WSResponse = {
