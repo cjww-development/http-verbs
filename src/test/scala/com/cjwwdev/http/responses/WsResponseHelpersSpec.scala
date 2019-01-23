@@ -113,6 +113,24 @@ class WsResponseHelpersSpec extends PlaySpec {
 
   implicit val request = FakeRequest()
 
+  "logResponse" should {
+    "return a ws response and log a success (HEAD)" in new WsResponseHelpers {
+      testWsResponse("").logResponse("/test/url", "HEAD", inError = false)
+    }
+
+    "return a ws response and log an error (HEAD)" in new WsResponseHelpers {
+      testWsResponse("").logResponse("/test/url", "HEAD", inError = true)
+    }
+
+    "return a ws response and log a success (GET)" in new WsResponseHelpers {
+      testWsResponse("").logResponse("/test/url", "GET", inError = false)
+    }
+
+    "return a ws response and log an error (GET)" in new WsResponseHelpers {
+      testWsResponse("""{ "errorMessage" : "there was an error" }""").logResponse("/test/url", "GET", inError = true)
+    }
+  }
+
   "toResponseString" should {
     "return a string without the need to decrypt" in new WsResponseHelpers {
       val result = testWsResponse(testStringApiResponse).toResponseString(needsDecrypt = false)
